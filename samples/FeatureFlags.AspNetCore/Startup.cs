@@ -38,25 +38,17 @@ namespace FeatureFlags.AspNetCore
                 var featureFlags = context.RequestServices.GetService<RimDev.AspNetCore.FeatureFlags.FeatureFlags>();
 
                 // TODO: Automatically wire up features
-                var testToggleFeature = new TestToggleFeature
+                var testFeature = new TestFeature
                 {
                     Value = true
                 };
 
-                var testStringFeature = new TestStringFeature
-                {
-                    Value = "abc"
-                };
+                await featureFlags.Set(testFeature);
 
-                await featureFlags.Set(testToggleFeature);
-                await featureFlags.Set(testStringFeature);
-
-                var testToggleFeatureGet = await featureFlags.Get<TestToggleFeature>();
-                var testStringFeatureGet = await featureFlags.Get<TestStringFeature>();
+                var testToggleFeatureGet = await featureFlags.Get<TestFeature>();
 
                 await context.Response.WriteAsync(
-                    $"{testToggleFeatureGet.GetType().Name}: {testToggleFeatureGet.Value}{Environment.NewLine}" +
-                    $"{testStringFeatureGet.GetType().Name}: {testStringFeatureGet.Value}{Environment.NewLine}");
+                    $"{testToggleFeatureGet.GetType().Name}: {testToggleFeatureGet.Value}{Environment.NewLine}");
             });
         }
     }
