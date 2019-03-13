@@ -1,9 +1,9 @@
 namespace RimDev.AspNetCore.FeatureFlags
 {
-    public abstract class Feature<TValue>
+    public abstract class Feature
     {
         public virtual string Description { get; }
 
-        public TValue Value { get; set; }
+        public bool Value { get; set; }
     }
 }
