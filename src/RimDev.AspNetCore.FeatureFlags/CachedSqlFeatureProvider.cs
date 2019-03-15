@@ -33,10 +33,8 @@ namespace RimDev.AspNetCore.FeatureFlags
             this.connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
         }
 
-        public async Task<TFeature> Get<TFeature>()
+        public async Task<Feature> Get(string featureName)
         {
-            var featureName = typeof(TFeature).Name;
-
             if (!cacheInitialized)
             {
                 if (!databaseInitialized)
@@ -61,7 +59,7 @@ namespace RimDev.AspNetCore.FeatureFlags
             if (!valueExists)
                 throw new ArgumentException($"{featureName} does not exist.");
 
-            return (TFeature)cacheValue;
+            return (Feature)cacheValue;
         }
 
         public async Task Set<TFeature>(TFeature feature)

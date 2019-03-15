@@ -1,4 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using Microsoft.AspNetCore.Http.Internal;
 
 namespace RimDev.AspNetCore.FeatureFlags
 {
@@ -8,9 +16,139 @@ namespace RimDev.AspNetCore.FeatureFlags
             this IApplicationBuilder builder,
             FeatureFlagOptions options = default(FeatureFlagOptions))
         {
+            builder.Map(options.ApiGetPath, appBuilder =>
+            {
+                appBuilder.Run(async context =>
+                {
+                    if (context.Request.Method != HttpMethods.Get)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status405MethodNotAllowed;
+                        return;
+                    }
+
+                    var featureFlags = context.RequestServices.GetService<FeatureFlags>();
+
+                    if (featureFlags == null)
+                        throw new InvalidOperationException(
+                            $"{nameof(FeatureFlags)} must be registered via AddFeatureFlags()");
+
+                    var featureName = context.Request.Query["feature"];
+                    if (string.IsNullOrEmpty(featureName))
+                    {
+                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                        return;
+                    }
+
+                    var featureType = options.FeatureFlagAssemblies
+                        .SelectMany(assembly => assembly.GetTypes())
+                        .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(Feature)))
+                        .SingleOrDefault(type => type.Name == featureName);
+
+                    if (featureType == null)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status404NotFound;
+                        return;
+                    }
+
+                    var feature = await featureFlags.Get(featureType).ConfigureAwait(false);
+
+                    var json = JsonConvert.SerializeObject(feature);
+
+                    await context.Response.WriteAsync(json).ConfigureAwait(false);
+                });
+            });
+
+            builder.Map(options.ApiGetAllPath, appBuilder =>
+            {
+                appBuilder.Run(async context =>
+                {
+                    if (context.Request.Method != HttpMethods.Get)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status405MethodNotAllowed;
+                        return;
+                    }
+
+                    var featureFlags = context.RequestServices.GetService<FeatureFlags>();
+
+                    if (featureFlags == null)
+                        throw new InvalidOperationException(
+                            $"{nameof(FeatureFlags)} must be registered via AddFeatureFlags()");
+
+                    var featureTypes = options.FeatureFlagAssemblies
+                        .SelectMany(assembly => assembly.GetTypes())
+                        .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(Feature)));
+
+                    var features = new List<object>();
+                    foreach (var featureType in featureTypes)
+                    {
+                        var feature = await featureFlags.Get(featureType).ConfigureAwait(false);
+
+                        features.Add(feature);
+                    }
+
+                    var json = JsonConvert.SerializeObject(features);
+
+                    await context.Response.WriteAsync(json).ConfigureAwait(false);
+                });
+            });
+
+            builder.Map(options.ApiSetPath, appBuilder =>
+            {
+                appBuilder.Run(async context =>
+                {
+                    if (context.Request.Method != HttpMethods.Post)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status405MethodNotAllowed;
+                        return;
+                    }
+
+                    var featureFlags = context.RequestServices.GetService<FeatureFlags>();
+
+                    if (featureFlags == null)
+                        throw new InvalidOperationException(
+                            $"{nameof(FeatureFlags)} must be registered via AddFeatureFlags()");
+
+                    string requestString;
+                    using (var streamReader = new StreamReader(context.Request.Body))
+                    {
+                        requestString = await streamReader
+                            .ReadToEndAsync()
+                            .ConfigureAwait(false);
+                    }
+
+                    var setRequest = (FeatureSetRequest)JsonConvert.DeserializeObject(
+                        requestString, typeof(FeatureSetRequest));
+
+                    var featureType = options.FeatureFlagAssemblies
+                        .SelectMany(assembly => assembly.GetTypes())
+                        .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(Feature)))
+                        .SingleOrDefault(type => type.Name == setRequest.Feature);
+
+                    if (featureType == null)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status404NotFound;
+                        return;
+                    }
+
+                    var feature = Activator.CreateInstance(featureType);
+
+                    (feature as Feature).Value = setRequest.Value;
+
+                    await featureFlags.Set(feature).ConfigureAwait(false);
+
+                    context.Response.StatusCode = StatusCodes.Status204NoContent;
+                });
+            });
+
             builder.Map(options.UiPath, x =>
             {
-                // Display UI
+                x.Run(async context =>
+                {
+                    var html = "TODO: UI HTML";
+
+                    context.Response.ContentType = "text/html";
+                    await context.Response.WriteAsync(html).ConfigureAwait(false);
+                });
             });
 
             return builder;
