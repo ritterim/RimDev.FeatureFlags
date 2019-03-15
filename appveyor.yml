@@ -1,0 +1,15 @@
+image: Visual Studio 2017
+
+build_script:
+  - ./build.cmd
+
+test: off
+
+artifacts:
+  - path: ./artifacts/*.nupkg
+
+deploy:
+  - provider: Environment
+    name: NuGet
+    on:
+      branch: master
