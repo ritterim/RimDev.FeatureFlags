@@ -96,5 +96,19 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
 
             Assert.True(providerFeature.Value);
         }
+
+        [Fact]
+        public async Task Ui_ReturnsExpectedHtml()
+        {
+            var client = factory.CreateClient();
+
+            var response = await client.GetAsync(TestStartup.Options.UiPath);
+
+            response.EnsureSuccessStatusCode();
+
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            Assert.StartsWith("<!DOCTYPE html>", responseString);
+        }
     }
 }

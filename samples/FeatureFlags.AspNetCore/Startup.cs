@@ -14,6 +14,7 @@ namespace FeatureFlags.AspNetCore
     {
         private static readonly FeatureFlagOptions options = new FeatureFlagOptions
         {
+            FeatureFlagAssemblies = new[] { typeof(Startup).Assembly }, // TODO: Make this unnecessary
             Provider = new InMemoryFeatureProvider()
             // Provider = new CachedSqlFeatureProvider(
             //     @"Data Source=(LocalDB)\v13.0;Database=FeatureFlags.AspNetCore;Integrated Security=True")

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Feature Flags</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <table id="features">
+    <thead>
+      <th>Feature</th>
+      <th></th>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+
+  <script>
+    // TODO: Move script to external file to support CSP
+
+    const fetchOptions = {
+      credentials: 'same-origin'
+    };
+
+    fetch('/_features_get_all', fetchOptions)
+      .then(res => res.json())
+      .then(json => {
+        const featuresTable = document.querySelector('#features tbody');
+
+        const rows = json.map(feature => `<td>${feature.name} ${feature.description ? ` (${feature.description})` : ""}</td>
+<td><input type="checkbox" id="${feature.name}"${feature.value ? " checked" : ""} /></td>`);
+
+        featuresTable.innerHTML = rows.join('');
+
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+          checkbox.addEventListener('change', evt => {
+            fetch('/_features_set', {
+              method: 'POST',
+              body: JSON.stringify({
+                feature: evt.currentTarget.id,
+                value: evt.currentTarget.checked
+              }),
+              headers: { 'Content-Type': 'application/json' },
+              ...fetchOptions
+            }).then(() => {
+              // TODO: Create request confirmed animation
+            }).catch(err => {
+              alert(err);
+            })
+          });
+        });
+      })
+      .catch(err => {
+        alert(err);
+      });
+  </script>
+</body>
+</html>
