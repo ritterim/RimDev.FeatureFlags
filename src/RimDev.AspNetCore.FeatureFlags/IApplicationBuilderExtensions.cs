@@ -144,7 +144,16 @@ namespace RimDev.AspNetCore.FeatureFlags
             {
                 x.Run(async context =>
                 {
-                    var html = "TODO: UI HTML";
+                    var htmlStream = typeof(IApplicationBuilderExtensions)
+                        .Assembly
+                        .GetManifestResourceStream(
+                            $"{typeof(IApplicationBuilderExtensions).Namespace}.index.html");
+
+                    string html;
+                    using (var reader = new StreamReader(htmlStream))
+                    {
+                        html = await reader.ReadToEndAsync().ConfigureAwait(false);
+                    }
 
                     context.Response.ContentType = "text/html";
                     await context.Response.WriteAsync(html).ConfigureAwait(false);
