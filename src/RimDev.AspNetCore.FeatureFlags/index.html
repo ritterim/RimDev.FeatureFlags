@@ -28,6 +28,10 @@
       </ul>
     </div>
   </main>
+  <div id="notifications-container" class="mdl-js-snackbar mdl-snackbar">
+    <div id="notification-text" class="mdl-snackbar__text"></div>
+    <button class="mdl-snackbar__action" type="button"></button>
+  </div>
 
   <script>
     // TODO: Move script to external file to support CSP
@@ -40,6 +44,7 @@
       .then(res => res.json())
       .then(json => {
         const featuresContainer = document.querySelector('#features');
+        const notificationsContainer = document.querySelector('#notifications-container');
 
         const features = json.map(feature => `<li class="mdl-list__item mdl-list__item--three-line">
           <span class="mdl-list__item-primary-content">
@@ -62,24 +67,41 @@
 
         document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
           checkbox.addEventListener('change', evt => {
+            const feature = evt.currentTarget.id;
+            const checked = evt.currentTarget.checked;
+
             fetch('/_features_set', {
               method: 'POST',
               body: JSON.stringify({
-                feature: evt.currentTarget.id,
-                value: evt.currentTarget.checked
+                feature: feature,
+                value: checked
               }),
               headers: { 'Content-Type': 'application/json' },
               ...fetchOptions
             }).then(() => {
-              // TODO: Create request confirmed animation
+              notificationsContainer.MaterialSnackbar.showSnackbar({
+                message: `${feature} set to ${checked}`
+              });
             }).catch(err => {
-              alert(err);
-            })
+              const toggle = document.getElementById(feature).parentElement;
+
+              if (checked) {
+                toggle.MaterialSwitch.off();
+              } else {
+                toggle.MaterialSwitch.on();
+              }
+
+              notificationsContainer.MaterialSnackbar.showSnackbar({
+                message: `ERROR: ${err}`
+              });
+            });
           });
         });
       })
       .catch(err => {
-        alert(err);
+        notificationsContainer.MaterialSnackbar.showSnackbar({
+          message: `ERROR: ${err}`
+        });
       });
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.min.js" integrity="sha256-PCfu4+fnQrp4wNmVbjN1eaX4LbOvOejab0UOhjLezrw=" crossorigin="anonymous"></script>
