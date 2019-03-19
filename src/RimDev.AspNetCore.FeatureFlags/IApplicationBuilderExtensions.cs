@@ -142,6 +142,24 @@ namespace RimDev.AspNetCore.FeatureFlags
 
             builder.Map(options.UiPath, x =>
             {
+                x.Map($"/main.js", y => {
+                    y.Run(async context => {
+                        var javaScriptStream = typeof(IApplicationBuilderExtensions)
+                            .Assembly
+                            .GetManifestResourceStream(
+                                $"{typeof(IApplicationBuilderExtensions).Namespace}.main.js");
+
+                        string javaScript;
+                        using (var reader = new StreamReader(javaScriptStream))
+                        {
+                            javaScript = await reader.ReadToEndAsync().ConfigureAwait(false);
+                        }
+
+                        context.Response.ContentType = "application/javascript";
+                        await context.Response.WriteAsync(javaScript).ConfigureAwait(false);
+                    });
+                });
+
                 x.Run(async context =>
                 {
                     var htmlStream = typeof(IApplicationBuilderExtensions)
