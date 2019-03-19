@@ -12,12 +12,9 @@ namespace FeatureFlags.AspNetCore
 {
     public class Startup
     {
-        private static readonly FeatureFlagOptions options = new FeatureFlagOptions
-        {
-            Provider = new InMemoryFeatureProvider()
-            // Provider = new CachedSqlFeatureProvider(
-            //     @"Data Source=(LocalDB)\v13.0;Database=FeatureFlags.AspNetCore;Integrated Security=True")
-        };
+        private static readonly FeatureFlagOptions options = new FeatureFlagOptions()
+            .UseInMemoryFeatureProvider();
+            // .UseCachedSqlFeatureProvider(@"Data Source=(LocalDB)\v13.0;Database=FeatureFlags.AspNetCore;Integrated Security=True");
 
         public void ConfigureServices(IServiceCollection services)
         {

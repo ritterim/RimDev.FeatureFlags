@@ -9,8 +9,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
         public static readonly FeatureFlagOptions Options = new FeatureFlagOptions
         {
             FeatureFlagAssemblies = new[] { typeof(TestStartup).Assembly },
-            Provider = new InMemoryFeatureProvider()
-        };
+        }.UseInMemoryFeatureProvider();
 
         public void ConfigureServices(IServiceCollection services)
         {
