@@ -33,8 +33,12 @@
     <button class="mdl-snackbar__action" type="button"></button>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.min.js" integrity="sha256-PCfu4+fnQrp4wNmVbjN1eaX4LbOvOejab0UOhjLezrw=" crossorigin="anonymous"></script>
   <script>
     // TODO: Move script to external file to support CSP
+
+    const featuresContainer = document.querySelector('#features');
+    const notificationsContainer = document.querySelector('#notifications-container');
 
     const fetchOptions = {
       credentials: 'same-origin'
@@ -43,9 +47,6 @@
     fetch('/_features_get_all', fetchOptions)
       .then(res => res.json())
       .then(json => {
-        const featuresContainer = document.querySelector('#features');
-        const notificationsContainer = document.querySelector('#notifications-container');
-
         const features = json.map(feature => `<li class="mdl-list__item mdl-list__item--three-line">
           <span class="mdl-list__item-primary-content">
             <i class="material-icons mdl-list__item-avatar">outlined_flag</i>
@@ -64,6 +65,10 @@
         </li>`);
 
         featuresContainer.innerHTML = features.join('');
+
+        [...featuresContainer.getElementsByClassName('mdl-switch')].forEach(toggle => {
+          componentHandler.upgradeElement(toggle);
+        });
 
         document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
           checkbox.addEventListener('change', evt => {
@@ -104,6 +109,5 @@
         });
       });
   </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.min.js" integrity="sha256-PCfu4+fnQrp4wNmVbjN1eaX4LbOvOejab0UOhjLezrw=" crossorigin="anonymous"></script>
 </body>
 </html>
