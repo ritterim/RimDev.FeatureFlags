@@ -15,7 +15,7 @@ namespace RimDev.AspNetCore.FeatureFlags
         public string UiPath { get; set; } = "/_features";
 
         public IEnumerable<Assembly> FeatureFlagAssemblies { get; set; }
-            = new[] { Assembly.GetExecutingAssembly() };
+            = new[] { Assembly.GetEntryAssembly() };
 
         public IFeatureProvider Provider { get; set; }
     }
