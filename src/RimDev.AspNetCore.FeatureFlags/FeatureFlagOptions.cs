@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace RimDev.AspNetCore.FeatureFlags
@@ -17,6 +16,6 @@ namespace RimDev.AspNetCore.FeatureFlags
         public IEnumerable<Assembly> FeatureFlagAssemblies { get; set; }
             = new[] { Assembly.GetEntryAssembly() };
 
-        public IFeatureProvider Provider { get; set; }
+        public IFeatureProvider Provider { get; internal set; }
     }
 }
