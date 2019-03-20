@@ -2,6 +2,8 @@
 
 A library for strongly typed feature flags in ASP.NET Core 2.x.
 
+**Note:** Controlling access of the UI / API of this library is the responsibility of the user. Apply authentication / authorization around the `UseFeatureFlags` method as needed, as this method wires up the various endpoints.
+
 <!--
 | Package                       | Version |
 | ----------------------------- | ------- |
