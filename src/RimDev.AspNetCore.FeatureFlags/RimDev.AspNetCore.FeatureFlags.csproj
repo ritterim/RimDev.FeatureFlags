@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="index.html" />
+    <EmbeddedResource Include="main.js" />
   </ItemGroup>
 
 </Project>

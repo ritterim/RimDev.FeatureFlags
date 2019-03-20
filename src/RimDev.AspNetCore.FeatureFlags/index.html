@@ -28,60 +28,12 @@
       </ul>
     </div>
   </main>
+  <div id="notifications-container" class="mdl-js-snackbar mdl-snackbar">
+    <div id="notification-text" class="mdl-snackbar__text"></div>
+    <button class="mdl-snackbar__action" type="button"></button>
+  </div>
 
-  <script>
-    // TODO: Move script to external file to support CSP
-
-    const fetchOptions = {
-      credentials: 'same-origin'
-    };
-
-    fetch('/_features_get_all', fetchOptions)
-      .then(res => res.json())
-      .then(json => {
-        const featuresContainer = document.querySelector('#features');
-
-        const features = json.map(feature => `<li class="mdl-list__item mdl-list__item--three-line">
-          <span class="mdl-list__item-primary-content">
-            <i class="material-icons mdl-list__item-avatar">outlined_flag</i>
-            <span>${feature.name}</span>
-            <span class="mdl-list__item-text-body">
-              ${feature.description}
-            </span>
-          </span>
-          <span class="mdl-list__item-secondary-content">
-            <a class="mdl-list__item-secondary-action" href="#">
-              <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="${feature.name}">
-                <input type="checkbox" id="${feature.name}" class="mdl-switch__input"${feature.value ? " checked" : ""} />
-              </label>
-            </a>
-          </span>
-        </li>`);
-
-        featuresContainer.innerHTML = features.join('');
-
-        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-          checkbox.addEventListener('change', evt => {
-            fetch('/_features_set', {
-              method: 'POST',
-              body: JSON.stringify({
-                feature: evt.currentTarget.id,
-                value: evt.currentTarget.checked
-              }),
-              headers: { 'Content-Type': 'application/json' },
-              ...fetchOptions
-            }).then(() => {
-              // TODO: Create request confirmed animation
-            }).catch(err => {
-              alert(err);
-            })
-          });
-        });
-      })
-      .catch(err => {
-        alert(err);
-      });
-  </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.min.js" integrity="sha256-PCfu4+fnQrp4wNmVbjN1eaX4LbOvOejab0UOhjLezrw=" crossorigin="anonymous"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.min.js" integrity="sha256-PCfu4+fnQrp4wNmVbjN1eaX4LbOvOejab0UOhjLezrw=" crossorigin="anonymous"></script>
+  <script defer src="/_features/main.js"></script>
 </body>
 </html>
