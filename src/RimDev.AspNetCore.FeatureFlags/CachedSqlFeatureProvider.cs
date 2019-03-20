@@ -2,6 +2,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -24,24 +26,47 @@ namespace RimDev.AspNetCore.FeatureFlags
         private readonly ConcurrentDictionary<string, object> cache =
             new ConcurrentDictionary<string, object>();
 
+        private readonly IEnumerable<Assembly> featureFlagAssemblies;
+
         private readonly string connectionString;
 
-        private bool cacheInitialized;
+        private readonly TimeSpan cacheLifetime;
 
-        public CachedSqlFeatureProvider(string connectionString)
+        private DateTime? cacheLastUpdatedAt;
+
+        public CachedSqlFeatureProvider(
+            IEnumerable<Assembly> featureFlagAssemblies,
+            string connectionString,
+            TimeSpan? cacheLifetime = null)
         {
+            this.featureFlagAssemblies = featureFlagAssemblies ?? throw new ArgumentNullException(nameof(featureFlagAssemblies));
             this.connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+            this.cacheLifetime = cacheLifetime ?? TimeSpan.FromMinutes(1);
+        }
+
+        public async Task Initialize()
+        {
+            if (!databaseInitialized)
+            {
+                await InitializeDatabase().ConfigureAwait(false);
+            }
+
+            var featureTypes = featureFlagAssemblies
+                .SelectMany(assembly => assembly.GetTypes())
+                .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(Feature)));
+
+            foreach (var featureType in featureTypes)
+            {
+                var feature = Activator.CreateInstance(featureType);
+
+                await Set(feature).ConfigureAwait(false);
+            }
         }
 
         public async Task<Feature> Get(string featureName)
         {
-            if (!cacheInitialized)
+            if (!cacheLastUpdatedAt.HasValue || cacheLastUpdatedAt < DateTime.UtcNow.Subtract(cacheLifetime))
             {
-                if (!databaseInitialized)
-                {
-                    await InitializeDatabase().ConfigureAwait(false);
-                }
-
                 var features = await GetAllFeaturesFromDatabase().ConfigureAwait(false);
 
                 foreach (var feature in features)
@@ -51,7 +76,7 @@ namespace RimDev.AspNetCore.FeatureFlags
                     cache.AddOrUpdate(feature.Key, value, (_, __) => value);
                 }
 
-                cacheInitialized = true;
+                cacheLastUpdatedAt = DateTime.UtcNow;
             }
 
             var valueExists = cache.TryGetValue(featureName, out object cacheValue);
@@ -69,11 +94,6 @@ namespace RimDev.AspNetCore.FeatureFlags
             var featureName = feature.GetType().Name;
 
             cache.AddOrUpdate(featureName, feature, (_, __) => feature);
-
-            if (!databaseInitialized)
-            {
-                await InitializeDatabase().ConfigureAwait(false);
-            }
 
             var serializedFeature = JsonConvert.SerializeObject(feature, jsonSerializerSettings);
 

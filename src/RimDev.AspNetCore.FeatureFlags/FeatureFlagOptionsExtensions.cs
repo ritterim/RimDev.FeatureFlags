@@ -10,7 +10,9 @@ namespace RimDev.AspNetCore.FeatureFlags
         {
             if (connectionString == null) throw new ArgumentNullException(nameof(connectionString));
 
-            options.Provider = new CachedSqlFeatureProvider(connectionString);
+            options.Provider = new CachedSqlFeatureProvider(
+                options.FeatureFlagAssemblies,
+                connectionString);
 
             return options;
         }
@@ -22,7 +24,8 @@ namespace RimDev.AspNetCore.FeatureFlags
         public static FeatureFlagOptions UseInMemoryFeatureProvider(
             this FeatureFlagOptions options)
         {
-            options.Provider = new InMemoryFeatureProvider();
+            options.Provider = new InMemoryFeatureProvider(
+                options.FeatureFlagAssemblies);
 
             return options;
         }

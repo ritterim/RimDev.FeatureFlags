@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace RimDev.AspNetCore.FeatureFlags
@@ -10,6 +11,27 @@ namespace RimDev.AspNetCore.FeatureFlags
     {
         private readonly ConcurrentDictionary<string, object> data =
             new ConcurrentDictionary<string, object>();
+
+        private readonly IEnumerable<Assembly> featureFlagAssemblies;
+
+        public InMemoryFeatureProvider(IEnumerable<Assembly> featureFlagAssemblies)
+        {
+            this.featureFlagAssemblies = featureFlagAssemblies ?? throw new ArgumentNullException(nameof(featureFlagAssemblies));
+        }
+
+        public async Task Initialize()
+        {
+            var featureTypes = featureFlagAssemblies
+                .SelectMany(assembly => assembly.GetTypes())
+                .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(Feature)));
+
+            foreach (var featureType in featureTypes)
+            {
+                var feature = Activator.CreateInstance(featureType);
+
+                await Set(feature).ConfigureAwait(false);
+            }
+        }
 
         public Task<Feature> Get(string featureName)
         {
