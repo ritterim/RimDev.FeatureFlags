@@ -1,4 +1,4 @@
-# RimDev.AspNetCore.FeatureFlags
+# RimDev.FeatureFlags
 
 A library for strongly typed feature flags in ASP.NET Core 2.x.
 
