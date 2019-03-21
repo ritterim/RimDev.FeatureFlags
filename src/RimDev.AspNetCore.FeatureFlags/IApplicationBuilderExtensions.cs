@@ -12,10 +12,23 @@ namespace RimDev.AspNetCore.FeatureFlags
 {
     public static class IApplicationBuilderExtensions
     {
+        private static bool providerInitialized;
+
         public static IApplicationBuilder UseFeatureFlags(
             this IApplicationBuilder builder,
             FeatureFlagOptions options = default(FeatureFlagOptions))
         {
+            builder.Use(async (context, next) =>
+            {
+                if (!providerInitialized)
+                {
+                    await options.Provider.Initialize().ConfigureAwait(false);
+                    providerInitialized = true;
+                }
+
+                await next();
+            });
+
             builder.Map(options.ApiGetPath, appBuilder =>
             {
                 appBuilder.Run(async context =>

@@ -20,14 +20,15 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
         [Fact]
         public async Task Get_ReturnsExpectedFeature()
         {
+            var client = factory.CreateClient();
+            await client.GetAsync("/"); // Invoke Initialize of IFeatureProvider
+
             var testFeature = new TestFeature
             {
                 Value = true
             };
 
             await TestStartup.Options.Provider.Set(testFeature);
-
-            var client = factory.CreateClient();
 
             var response = await client.GetAsync(
                 $"{TestStartup.Options.ApiGetPath}?feature={testFeature.GetType().Name}");
@@ -42,6 +43,9 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
         [Fact]
         public async Task GetAll_ReturnsExpectedFeatures()
         {
+            var client = factory.CreateClient();
+            await client.GetAsync("/"); // Invoke Initialize of IFeatureProvider
+
             var testFeature = new TestFeature
             {
                 Value = true
@@ -54,8 +58,6 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
 
             await TestStartup.Options.Provider.Set(testFeature);
             await TestStartup.Options.Provider.Set(testFeature2);
-
-            var client = factory.CreateClient();
 
             var response = await client.GetAsync(TestStartup.Options.ApiGetAllPath);
 
@@ -72,14 +74,15 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
         [Fact]
         public async Task Set_SetsExpectedFeature()
         {
+            var client = factory.CreateClient();
+            await client.GetAsync("/"); // Invoke Initialize of IFeatureProvider
+
             var provider = TestStartup.Options.Provider;
 
             var feature = new TestFeature
             {
                 Value = true
             };
-
-            var client = factory.CreateClient();
 
             var response = await client.PostAsync(
                 TestStartup.Options.ApiSetPath,

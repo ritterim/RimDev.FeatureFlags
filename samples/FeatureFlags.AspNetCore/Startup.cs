@@ -30,22 +30,28 @@ namespace FeatureFlags.AspNetCore
 
             app.UseFeatureFlags(options);
 
-            app.Run(async (context) =>
+            app.Map("/test-feature", appBuilder =>
             {
-                var featureFlags = context.RequestServices.GetService<RimDev.AspNetCore.FeatureFlags.FeatureFlags>();
-
-                // TODO: Automatically wire up features
-                var testFeature = new TestFeature
+                appBuilder.Run(async context =>
                 {
-                    Value = true
-                };
+                    var testFeature = context.RequestServices.GetService<TestFeature>();
 
-                await featureFlags.Set(testFeature);
+                    context.Response.ContentType = "text/html";
+                    await context.Response.WriteAsync($@"
+                        {testFeature.GetType().Name}: {testFeature.Value}
+                        <br />
+                        <a href=""{options.UiPath}"">View UI</a>");
+                });
+            });
 
-                var testToggleFeatureGet = await featureFlags.Get<TestFeature>();
+            app.Map("", appBuilder =>
+            {
+                appBuilder.Run(context =>
+                {
+                    context.Response.Redirect("/test-feature");
 
-                await context.Response.WriteAsync(
-                    $"{testToggleFeatureGet.GetType().Name}: {testToggleFeatureGet.Value}{Environment.NewLine}");
+                    return Task.CompletedTask;
+                });
             });
         }
     }
