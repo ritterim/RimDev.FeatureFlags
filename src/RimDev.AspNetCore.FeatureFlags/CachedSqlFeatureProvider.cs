@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -6,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace RimDev.AspNetCore.FeatureFlags
 {
@@ -51,33 +51,12 @@ namespace RimDev.AspNetCore.FeatureFlags
                 await InitializeDatabase().ConfigureAwait(false);
             }
 
-            var featureTypes = featureFlagAssemblies
-                .SelectMany(assembly => assembly.GetTypes())
-                .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(Feature)));
-
-            foreach (var featureType in featureTypes)
-            {
-                var feature = Activator.CreateInstance(featureType);
-
-                await Set(feature).ConfigureAwait(false);
-            }
+            await HydrateCacheIfNeeded().ConfigureAwait(false);
         }
 
         public async Task<Feature> Get(string featureName)
         {
-            if (!cacheLastUpdatedAt.HasValue || cacheLastUpdatedAt < DateTime.UtcNow.Subtract(cacheLifetime))
-            {
-                var features = await GetAllFeaturesFromDatabase().ConfigureAwait(false);
-
-                foreach (var feature in features)
-                {
-                    var value = JsonConvert.DeserializeObject(feature.Value, jsonSerializerSettings);
-
-                    cache.AddOrUpdate(feature.Key, value, (_, __) => value);
-                }
-
-                cacheLastUpdatedAt = DateTime.UtcNow;
-            }
+            await HydrateCacheIfNeeded().ConfigureAwait(false);
 
             var valueExists = cache.TryGetValue(featureName, out object cacheValue);
 
@@ -98,6 +77,38 @@ namespace RimDev.AspNetCore.FeatureFlags
             var serializedFeature = JsonConvert.SerializeObject(feature, jsonSerializerSettings);
 
             await SetFeatureInDatabase(featureName, serializedFeature).ConfigureAwait(false);
+        }
+
+        private async Task HydrateCacheIfNeeded()
+        {
+            if (!cacheLastUpdatedAt.HasValue || cacheLastUpdatedAt < DateTime.UtcNow.Subtract(cacheLifetime))
+            {
+                // Hydrate with all defined types
+                var featureTypes = featureFlagAssemblies
+                    .SelectMany(assembly => assembly.GetTypes())
+                    .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(Feature)));
+
+                foreach (var featureType in featureTypes)
+                {
+                    var feature = Activator.CreateInstance(featureType);
+
+                    var featureName = feature.GetType().Name;
+
+                    cache.AddOrUpdate(featureName, feature, (_, __) => feature);
+                }
+
+                // Overwrite cached items based on existing database items
+                var features = await GetAllFeaturesFromDatabase().ConfigureAwait(false);
+
+                foreach (var feature in features)
+                {
+                    var value = JsonConvert.DeserializeObject(feature.Value, jsonSerializerSettings);
+
+                    cache.AddOrUpdate(feature.Key, value, (_, __) => value);
+                }
+
+                cacheLastUpdatedAt = DateTime.UtcNow;
+            }
         }
 
         private async Task InitializeDatabase()
