@@ -1,4 +1,3 @@
-using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace RimDev.AspNetCore.FeatureFlags
@@ -11,11 +10,7 @@ namespace RimDev.AspNetCore.FeatureFlags
         {
             service.AddSingleton(new FeatureFlags(options.Provider));
 
-            var featuresTypes = options.FeatureFlagAssemblies
-                .SelectMany(assembly => assembly.GetTypes())
-                .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(Feature)));
-
-            foreach (var featureType in featuresTypes)
+            foreach (var featureType in options.FeatureFlagAssemblies.GetFeatureTypes())
             {
                 service.AddTransient(featureType, provider =>
                 {

@@ -84,11 +84,7 @@ namespace RimDev.AspNetCore.FeatureFlags
             if (!cacheLastUpdatedAt.HasValue || cacheLastUpdatedAt < DateTime.UtcNow.Subtract(cacheLifetime))
             {
                 // Hydrate with all defined types
-                var featureTypes = featureFlagAssemblies
-                    .SelectMany(assembly => assembly.GetTypes())
-                    .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(Feature)));
-
-                foreach (var featureType in featureTypes)
+                foreach (var featureType in featureFlagAssemblies.GetFeatureTypes())
                 {
                     var feature = Activator.CreateInstance(featureType);
 

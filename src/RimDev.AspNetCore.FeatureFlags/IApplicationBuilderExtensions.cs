@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using Microsoft.AspNetCore.Http.Internal;
 
 namespace RimDev.AspNetCore.FeatureFlags
 {
@@ -52,10 +50,7 @@ namespace RimDev.AspNetCore.FeatureFlags
                         return;
                     }
 
-                    var featureType = options.FeatureFlagAssemblies
-                        .SelectMany(assembly => assembly.GetTypes())
-                        .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(Feature)))
-                        .SingleOrDefault(type => type.Name == featureName);
+                    var featureType = options.FeatureFlagAssemblies.GetFeatureType(featureName);
 
                     if (featureType == null)
                     {
@@ -87,12 +82,8 @@ namespace RimDev.AspNetCore.FeatureFlags
                         throw new InvalidOperationException(
                             $"{nameof(FeatureFlags)} must be registered via AddFeatureFlags()");
 
-                    var featureTypes = options.FeatureFlagAssemblies
-                        .SelectMany(assembly => assembly.GetTypes())
-                        .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(Feature)));
-
                     var features = new List<object>();
-                    foreach (var featureType in featureTypes)
+                    foreach (var featureType in options.FeatureFlagAssemblies.GetFeatureTypes())
                     {
                         var feature = await featureFlags.Get(featureType).ConfigureAwait(false);
 
@@ -132,10 +123,7 @@ namespace RimDev.AspNetCore.FeatureFlags
                     var setRequest = (FeatureSetRequest)JsonConvert.DeserializeObject(
                         requestString, typeof(FeatureSetRequest));
 
-                    var featureType = options.FeatureFlagAssemblies
-                        .SelectMany(assembly => assembly.GetTypes())
-                        .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(Feature)))
-                        .SingleOrDefault(type => type.Name == setRequest.Feature);
+                    var featureType = options.FeatureFlagAssemblies.GetFeatureType(setRequest.Feature);
 
                     if (featureType == null)
                     {
