@@ -21,11 +21,7 @@ namespace RimDev.AspNetCore.FeatureFlags
 
         public async Task Initialize()
         {
-            var featureTypes = featureFlagAssemblies
-                .SelectMany(assembly => assembly.GetTypes())
-                .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(Feature)));
-
-            foreach (var featureType in featureTypes)
+            foreach (var featureType in featureFlagAssemblies.GetFeatureTypes())
             {
                 var feature = Activator.CreateInstance(featureType);
 
