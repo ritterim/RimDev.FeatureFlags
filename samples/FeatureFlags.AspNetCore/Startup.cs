@@ -29,6 +29,7 @@ namespace FeatureFlags.AspNetCore
             }
 
             app.UseFeatureFlags(options);
+            app.UseFeatureFlagsUI(options);
 
             app.Map("/test-feature", appBuilder =>
             {

@@ -29,6 +29,13 @@ namespace RimDev.AspNetCore.FeatureFlags
                 await next();
             });
 
+            return builder;
+        }
+
+        public static IApplicationBuilder UseFeatureFlagsUI(
+            this IApplicationBuilder builder,
+            FeatureFlagOptions options = default(FeatureFlagOptions))
+        {
             builder.Map(options.ApiGetPath, appBuilder =>
             {
                 appBuilder.Run(async context =>

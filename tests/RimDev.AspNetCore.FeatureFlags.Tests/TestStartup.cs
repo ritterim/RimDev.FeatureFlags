@@ -19,6 +19,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseFeatureFlags(Options);
+            app.UseFeatureFlagsUI(Options);
         }
     }
 }
