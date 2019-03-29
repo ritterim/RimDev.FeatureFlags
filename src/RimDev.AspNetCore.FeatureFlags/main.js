@@ -12,9 +12,7 @@ fetch('/_features_get_all', fetchOptions)
       <span class="mdl-list__item-primary-content">
         <i class="material-icons mdl-list__item-avatar">outlined_flag</i>
         <span>${feature.name}</span>
-        <span class="mdl-list__item-text-body">
-          ${feature.description}
-        </span>
+        ${feature.description ? '<span class="mdl-list__item-text-body">' + feature.description + '</span>' : ''}
       </span>
       <span class="mdl-list__item-secondary-content">
         <a class="mdl-list__item-secondary-action" href="#">
