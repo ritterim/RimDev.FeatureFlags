@@ -76,6 +76,20 @@ namespace MyApplication
 
 **Now you can dependency inject any of your feature flags using the standard ASP.NET Core IoC!**
 
+```csharp
+public class MyController : Controller
+{
+    private readonly MyFeature myFeature;
+
+    public MyController(MyFeature myFeature)
+    {
+        this.myFeature = myFeature;
+    }
+
+    // Use myFeature instance here, using myFeature.Value for the on/off toggle value.
+}
+```
+
 ## UI
 
 The UI wired up by `UseFeatureFlagsUI` is available by default at `/_features`. The UI and API endpoints can be modified in `FeatureFlagOptions` if you'd like, too.
