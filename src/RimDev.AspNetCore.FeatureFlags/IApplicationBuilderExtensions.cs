@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -150,43 +151,25 @@ namespace RimDev.AspNetCore.FeatureFlags
 
             builder.Map(options.UiPath, x =>
             {
-                x.Map($"/main.js", y => {
-                    y.Run(async context => {
-                        var javaScriptStream = typeof(IApplicationBuilderExtensions)
-                            .Assembly
-                            .GetManifestResourceStream(
-                                $"{typeof(IApplicationBuilderExtensions).Namespace}.main.js");
-
-                        string javaScript;
-                        using (var reader = new StreamReader(javaScriptStream))
-                        {
-                            javaScript = await reader.ReadToEndAsync().ConfigureAwait(false);
-                        }
-
-                        context.Response.ContentType = "application/javascript";
-                        await context.Response.WriteAsync(javaScript).ConfigureAwait(false);
-                    });
-                });
-
-                x.Run(async context =>
-                {
-                    var htmlStream = typeof(IApplicationBuilderExtensions)
-                        .Assembly
-                        .GetManifestResourceStream(
-                            $"{typeof(IApplicationBuilderExtensions).Namespace}.index.html");
-
-                    string html;
-                    using (var reader = new StreamReader(htmlStream))
-                    {
-                        html = await reader.ReadToEndAsync().ConfigureAwait(false);
-                    }
-
-                    context.Response.ContentType = "text/html";
-                    await context.Response.WriteAsync(html).ConfigureAwait(false);
-                });
+                x.Map($"/main.js", y => y.Run(context => context.Response.WriteManifestResource(typeof(IApplicationBuilderExtensions), "application/javascript", "main.js")));
+                x.Run(context => context.Response.WriteManifestResource(typeof(IApplicationBuilderExtensions), "text/html", "index.html"));
             });
 
             return builder;
+        }
+
+        static async Task WriteManifestResource(this HttpResponse response, Type type, string contentType, string name)
+        {
+            using (var stream = type.Assembly.GetManifestResourceStream(type, name))
+            {
+                if (stream == null)
+                {
+                    response.StatusCode = StatusCodes.Status404NotFound;
+                    return;
+                }
+                response.ContentType = contentType;
+                await stream.CopyToAsync(response.Body).ConfigureAwait(false);
+            }
         }
     }
 }
