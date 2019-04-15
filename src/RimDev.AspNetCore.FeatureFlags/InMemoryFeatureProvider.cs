@@ -23,23 +23,24 @@ namespace RimDev.AspNetCore.FeatureFlags
         {
             foreach (var featureType in featureFlagAssemblies.GetFeatureTypes())
             {
-                var feature = Activator.CreateInstance(featureType);
-
+                var feature = (Feature) Activator.CreateInstance(featureType);
                 await Set(feature).ConfigureAwait(false);
             }
         }
 
-        public Task<Feature> Get(string featureName)
+        public Task<TFeature> Get<TFeature>()
+            where TFeature: Feature
         {
-            var keyFound = data.TryGetValue(featureName, out var value);
+            var keyFound = data.TryGetValue(typeof(TFeature).Name, out var value);
 
             if (!keyFound)
                 return null;
 
-            return Task.FromResult((Feature)value);
+            return Task.FromResult((TFeature)value);
         }
 
         public Task Set<TFeature>(TFeature feature)
+            where TFeature: Feature
         {
             if (feature == null) throw new ArgumentNullException(nameof(feature));
 

@@ -14,9 +14,10 @@ namespace RimDev.AspNetCore.FeatureFlags
             this.provider = provider ?? throw new ArgumentNullException(nameof(provider));
         }
 
-        public async Task<TFeature> Get<TFeature>() where TFeature : Feature
+        public async Task<TFeature> Get<TFeature>()
+            where TFeature : Feature
         {
-            var feature = await provider.Get(typeof(TFeature).Name).ConfigureAwait(false);
+            var feature = await provider.Get<TFeature>().ConfigureAwait(false);
 
             if (feature == null)
                 throw new ArgumentException($"A feature named {typeof(TFeature).Name} was not found.");
@@ -26,18 +27,27 @@ namespace RimDev.AspNetCore.FeatureFlags
 
         public async Task<Feature> Get(Type featureType)
         {
-            var feature = await provider.Get(featureType.Name).ConfigureAwait(false);
+            var method = typeof(IFeatureProvider)
+                .GetMethod(nameof(IFeatureProvider.Get))
+                .MakeGenericMethod(featureType);
+
+            var task = (Task) method.Invoke(provider, null);
+
+            await task.ConfigureAwait(false);
+
+            var resultProperty = task.GetType().GetProperty("Result");
+            var feature = resultProperty.GetValue(task) as Feature;
 
             if (feature == null)
-                throw new ArgumentException($"A feature named {(feature.GetType().Name)} was not found.");
+                throw new ArgumentException($"A feature named {featureType.Name} was not found.");
 
             return feature;
         }
 
         public async Task Set<TFeature>(TFeature feature)
+            where TFeature: Feature
         {
             if (feature == null) throw new ArgumentNullException(nameof(feature));
-
             await provider.Set(feature).ConfigureAwait(false);
         }
     }

@@ -10,7 +10,16 @@ namespace RimDev.AspNetCore.FeatureFlags
         [JsonProperty("description")]
         public virtual string Description { get; }
 
+        public object Value { get; set; }
+    }
+
+    public abstract class FeatureValue<T> : Feature
+    {
         [JsonProperty("value")]
-        public bool Value { get; set; }
+        public new T Value
+        {
+            get => base.Value is T ? (T) base.Value : default(T);
+            set => base.Value = value;
+        }
     }
 }

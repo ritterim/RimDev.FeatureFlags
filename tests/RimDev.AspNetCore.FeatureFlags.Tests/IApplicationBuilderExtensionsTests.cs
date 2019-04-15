@@ -95,7 +95,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
 
             response.EnsureSuccessStatusCode();
 
-            var providerFeature = await provider.Get(typeof(TestFeature).Name);
+            var providerFeature = await provider.Get<TestFeature>();
 
             Assert.True(providerFeature.Value);
         }

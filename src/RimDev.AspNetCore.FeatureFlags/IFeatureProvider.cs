@@ -6,8 +6,8 @@ namespace RimDev.AspNetCore.FeatureFlags
     {
         Task Initialize();
 
-        Task<Feature> Get(string featureName);
+        Task<TFeature> Get<TFeature>() where TFeature: Feature;
 
-        Task Set<TFeature>(TFeature feature);
+        Task Set<TFeature>(TFeature feature) where TFeature: Feature;
     }
 }

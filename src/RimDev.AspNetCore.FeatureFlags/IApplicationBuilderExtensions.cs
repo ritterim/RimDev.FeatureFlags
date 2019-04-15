@@ -66,7 +66,7 @@ namespace RimDev.AspNetCore.FeatureFlags
                         return;
                     }
 
-                    var feature = await featureFlags.Get(featureType).ConfigureAwait(false);
+                    var feature = await featureFlags.Get<Feature>().ConfigureAwait(false);
 
                     var json = JsonConvert.SerializeObject(feature);
 
@@ -94,7 +94,6 @@ namespace RimDev.AspNetCore.FeatureFlags
                     foreach (var featureType in options.FeatureFlagAssemblies.GetFeatureTypes())
                     {
                         var feature = await featureFlags.Get(featureType).ConfigureAwait(false);
-
                         features.Add(feature);
                     }
 
@@ -139,9 +138,8 @@ namespace RimDev.AspNetCore.FeatureFlags
                         return;
                     }
 
-                    var feature = Activator.CreateInstance(featureType);
-
-                    (feature as Feature).Value = setRequest.Value;
+                    var feature = (Feature) Activator.CreateInstance(featureType);
+                    feature.Value = setRequest.Value;
 
                     await featureFlags.Set(feature).ConfigureAwait(false);
 

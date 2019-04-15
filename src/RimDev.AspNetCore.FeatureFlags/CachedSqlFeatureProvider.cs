@@ -54,19 +54,21 @@ namespace RimDev.AspNetCore.FeatureFlags
             await HydrateCacheIfNeeded().ConfigureAwait(false);
         }
 
-        public async Task<Feature> Get(string featureName)
+        public async Task<TFeature> Get<TFeature>()
+            where TFeature: Feature
         {
             await HydrateCacheIfNeeded().ConfigureAwait(false);
 
-            var valueExists = cache.TryGetValue(featureName, out object cacheValue);
+            var valueExists = cache.TryGetValue(typeof(TFeature).Name, out object cacheValue);
 
             if (!valueExists)
-                throw new ArgumentException($"{featureName} does not exist.");
+                throw new ArgumentException($"{typeof(TFeature).Name} does not exist.");
 
-            return (Feature)cacheValue;
+            return (TFeature)cacheValue;
         }
 
         public async Task Set<TFeature>(TFeature feature)
+            where TFeature: Feature
         {
             if (feature == null) throw new ArgumentNullException(nameof(feature));
 

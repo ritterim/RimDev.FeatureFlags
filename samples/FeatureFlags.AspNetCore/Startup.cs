@@ -12,7 +12,7 @@ namespace FeatureFlags.AspNetCore
 {
     public class Startup
     {
-        private static readonly FeatureFlagOptions options = new FeatureFlagOptions()
+        private static readonly FeatureFlagOptions options = new FeatureFlagOptions() { UiPath = "/features"}
             .UseInMemoryFeatureProvider();
             // .UseCachedSqlFeatureProvider(@"Data Source=(LocalDB)\v13.0;Database=FeatureFlags.AspNetCore;Integrated Security=True");
 
