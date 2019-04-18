@@ -29,5 +29,16 @@ namespace RimDev.AspNetCore.FeatureFlags
 
             return options;
         }
+
+        public static FeatureFlagOptions UseCustomProvider(
+            this FeatureFlagOptions options,
+            IFeatureProvider provider)
+        {
+            if (provider == null) throw new ArgumentNullException(nameof(provider));
+
+            options.Provider = provider;
+
+            return options;
+        }
     }
 }
