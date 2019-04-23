@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace RimDev.AspNetCore.FeatureFlags
 {
@@ -15,6 +16,8 @@ namespace RimDev.AspNetCore.FeatureFlags
 
         public IEnumerable<Assembly> FeatureFlagAssemblies { get; set; }
             = new[] { Assembly.GetEntryAssembly() };
+
+        public ServiceLifetime FeatureLifetime { get; set; } = ServiceLifetime.Transient;
 
         public IFeatureProvider Provider { get; internal set; }
     }

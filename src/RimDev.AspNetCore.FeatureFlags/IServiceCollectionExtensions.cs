@@ -12,7 +12,7 @@ namespace RimDev.AspNetCore.FeatureFlags
 
             foreach (var featureType in options.FeatureFlagAssemblies.GetFeatureTypes())
             {
-                service.AddTransient(featureType, provider =>
+                service.Add(new ServiceDescriptor(featureType, provider =>
                 {
                     var featureFlags = provider.GetRequiredService<FeatureFlags>();
 
@@ -22,7 +22,7 @@ namespace RimDev.AspNetCore.FeatureFlags
                         .GetResult();
 
                     return featureFlag;
-                });
+                }, options.FeatureLifetime));
             }
 
             return service;
