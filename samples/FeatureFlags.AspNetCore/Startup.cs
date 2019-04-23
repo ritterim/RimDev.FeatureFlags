@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RimDev.AspNetCore.FeatureFlags;
 using System;
@@ -12,9 +13,18 @@ namespace FeatureFlags.AspNetCore
 {
     public class Startup
     {
-        private static readonly FeatureFlagOptions options = new FeatureFlagOptions()
-            .UseInMemoryFeatureProvider();
-            // .UseCachedSqlFeatureProvider(@"Data Source=(LocalDB)\v13.0;Database=FeatureFlags.AspNetCore;Integrated Security=True");
+        private readonly FeatureFlagOptions options;
+
+        public IConfiguration Configuration { get; }
+
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+
+            options = new FeatureFlagOptions()
+                .UseInMemoryFeatureProvider();
+                // .UseCachedSqlFeatureProvider(Configuration.GetConnectionString("localDb"));
+        }
 
         public void ConfigureServices(IServiceCollection services)
         {

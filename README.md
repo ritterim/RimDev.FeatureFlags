@@ -29,6 +29,7 @@ You'll need to wire up `Startup.cs` as follows:
 ```csharp
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RimDev.AspNetCore.FeatureFlags;
 
@@ -36,8 +37,17 @@ namespace MyApplication
 {
     public class Startup
     {
-        private static readonly FeatureFlagOptions options = new FeatureFlagOptions()
-            .UseCachedSqlFeatureProvider(@"CONNECTION_STRING_HREE");
+        private readonly FeatureFlagOptions options;
+
+        public IConfiguration Configuration { get; }
+
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+
+            options = new FeatureFlagOptions()
+                .UseCachedSqlFeatureProvider(Configuration.GetConnectionString("localDb"));
+        }
 
         public void ConfigureServices(IServiceCollection services)
         {
