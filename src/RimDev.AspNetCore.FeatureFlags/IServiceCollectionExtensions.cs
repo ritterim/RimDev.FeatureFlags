@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace RimDev.AspNetCore.FeatureFlags
@@ -8,11 +9,13 @@ namespace RimDev.AspNetCore.FeatureFlags
             this IServiceCollection service,
             FeatureFlagOptions options = default(FeatureFlagOptions))
         {
-            service.AddSingleton(new FeatureFlags(options.Provider));
+            service.AddSingleton(new FeatureFlags(options.Provider)); // TODO: Remove in v2?
 
             foreach (var featureType in options.FeatureFlagAssemblies.GetFeatureTypes())
             {
-                service.AddTransient(featureType, provider =>
+                var feature = (Feature)Activator.CreateInstance(featureType);
+
+                service.Add(new ServiceDescriptor(featureType, provider =>
                 {
                     var featureFlags = provider.GetRequiredService<FeatureFlags>();
 
@@ -22,7 +25,7 @@ namespace RimDev.AspNetCore.FeatureFlags
                         .GetResult();
 
                     return featureFlag;
-                });
+                }, feature.ServiceLifetime));
             }
 
             return service;
