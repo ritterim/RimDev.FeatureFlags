@@ -19,6 +19,13 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseFeatureFlags(Options);
+
+            /**
+             * Intentionally included to confirm feature-flag provider runs outside request-pipeline.
+             * Otherwise, this will fail during app. startup since provider is not initialized.
+             */
+            app.ApplicationServices.GetRequiredService<TestFeature>();
+
             app.UseFeatureFlagsUI(Options);
         }
     }
