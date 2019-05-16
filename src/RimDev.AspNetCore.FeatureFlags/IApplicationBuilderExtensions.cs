@@ -17,16 +17,15 @@ namespace RimDev.AspNetCore.FeatureFlags
             this IApplicationBuilder builder,
             FeatureFlagOptions options = default(FeatureFlagOptions))
         {
-            builder.Use(async (context, next) =>
+            if (!providerInitialized)
             {
-                if (!providerInitialized)
-                {
-                    await options.Provider.Initialize().ConfigureAwait(false);
-                    providerInitialized = true;
-                }
+                options.Provider.Initialize()
+                    .ConfigureAwait(false)
+                    .GetAwaiter()
+                    .GetResult();
 
-                await next();
-            });
+                providerInitialized = true;
+            }
 
             return builder;
         }
