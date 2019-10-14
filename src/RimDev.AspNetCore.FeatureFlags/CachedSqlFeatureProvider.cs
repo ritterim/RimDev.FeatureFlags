@@ -3,7 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,7 +14,7 @@ namespace RimDev.AspNetCore.FeatureFlags
     {
         private const string TableName = "RimDevAspNetCoreFeatureFlags";
 
-        private static JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings
+        private static readonly JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings
         {
             TypeNameHandling = TypeNameHandling.All
         };
@@ -96,18 +96,17 @@ namespace RimDev.AspNetCore.FeatureFlags
                 // Overwrite cached items based on existing database items
                 var features = await GetAllFeaturesFromDatabase().ConfigureAwait(false);
 
+                // Filter out features that no longer exist but were persisted in the database previously
+                // to avoid JsonSerializationException on `JsonConvert.DeserializeObject` for missing type.
+                features = features
+                    .Where(x => cache.TryGetValue(x.Key, out var cachedFeature) && cachedFeature != default)
+                    .ToDictionary(x => x.Key, x => x.Value);
+
                 foreach (var feature in features)
                 {
-                    try
-                    {
-                        var value = JsonConvert.DeserializeObject(feature.Value, jsonSerializerSettings);
+                    var value = JsonConvert.DeserializeObject(feature.Value, jsonSerializerSettings);
 
-                        cache.AddOrUpdate(feature.Key, value, (_, __) => value);
-                    }
-                    catch (Exception ex)
-                    {
-                        Trace.WriteLine($"Unable to deserialize {feature.Key} from database: {ex.Message}");
-                    }
+                    cache.AddOrUpdate(feature.Key, value, (_, __) => value);
                 }
 
                 cacheLastUpdatedAt = DateTime.UtcNow;
