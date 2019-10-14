@@ -3,7 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
+using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -98,9 +98,16 @@ namespace RimDev.AspNetCore.FeatureFlags
 
                 foreach (var feature in features)
                 {
-                    var value = JsonConvert.DeserializeObject(feature.Value, jsonSerializerSettings);
+                    try
+                    {
+                        var value = JsonConvert.DeserializeObject(feature.Value, jsonSerializerSettings);
 
-                    cache.AddOrUpdate(feature.Key, value, (_, __) => value);
+                        cache.AddOrUpdate(feature.Key, value, (_, __) => value);
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteLine($"Unable to deserialize {feature.Key} from database: {ex.Message}");
+                    }
                 }
 
                 cacheLastUpdatedAt = DateTime.UtcNow;
