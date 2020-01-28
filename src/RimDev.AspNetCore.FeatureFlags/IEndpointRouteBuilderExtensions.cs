@@ -7,23 +7,46 @@ namespace RimDev.AspNetCore.FeatureFlags
 {
     public static class IEndpointRouteBuilderExtensions
     {
-        public static IEndpointRouteBuilder MapFeatureFlagsUI(
+        public static IEndpointConventionBuilder MapFeatureFlagsUI(
             this IEndpointRouteBuilder builder,
             FeatureFlagOptions options = default(FeatureFlagOptions))
         {
-            builder.Map(options.ApiGetPath, context => FeatureFlagsBuilder.ApiGetPath(context, options));
-            builder.Map(options.ApiGetAllPath, context => FeatureFlagsBuilder.ApiGetAllPath(context, options));
-            builder.Map(options.ApiSetPath, context => FeatureFlagsBuilder.ApiSetPath(context, options));
+            return builder.Map(
+                options.UiPath + "/{**path}",
+                async context =>
+                {
+                    var path = context.Request.Path;
 
-            builder.Map(
-                $"{options.UiPath}/main.js",
-                context => context.Response.WriteManifestResource(typeof(IApplicationBuilderExtensions), "application/javascript", "main.js"));
+                    if (path == options.ApiGetPath)
+                    {
+                        await FeatureFlagsBuilder.ApiGetPath(context, options);
+                        return;
+                    }
 
-            builder.Map(
-                options.UiPath,
-                context => context.Response.WriteManifestResource(typeof(IApplicationBuilderExtensions), "text/html", "index.html"));
+                    if (path == options.ApiGetAllPath)
+                    {
+                        await FeatureFlagsBuilder.ApiGetAllPath(context, options);
+                        return;
+                    }
 
-            return builder;
+                    if (path == options.ApiSetPath)
+                    {
+                        await FeatureFlagsBuilder.ApiSetPath(context, options);
+                        return;
+                    }
+
+                    if (path == $"{options.UiPath}/main.js")
+                    {
+                        await context.Response.WriteManifestResource(typeof(IApplicationBuilderExtensions), "application/javascript", "main.js");
+                        return;
+                    }
+
+                    if (path == options.UiPath)
+                    {
+                        await context.Response.WriteManifestResource(typeof(IApplicationBuilderExtensions), "text/html", "index.html");
+                        return;
+                    }
+                });
         }
     }
 }

@@ -5,7 +5,7 @@ const fetchOptions = {
   credentials: 'same-origin'
 };
 
-fetch('/_features_get_all', fetchOptions)
+fetch('/_features/get_all', fetchOptions)
   .then(res => res.json())
   .then(json => {
     const features = json.map(feature => `<li class="mdl-list__item mdl-list__item--three-line">
@@ -34,7 +34,7 @@ fetch('/_features_get_all', fetchOptions)
         const feature = evt.currentTarget.id;
         const checked = evt.currentTarget.checked;
 
-        fetch('/_features_set', {
+        fetch('/_features/set', {
           method: 'POST',
           body: JSON.stringify({
             feature: feature,
