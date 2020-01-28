@@ -1,6 +1,6 @@
 # RimDev.FeatureFlags
 
-A library for strongly typed feature flags in ASP.NET Core 2.2.
+A library for strongly typed feature flags in ASP.NET Core.
 
 ![Screenshot](https://raw.githubusercontent.com/ritterim/RimDev.FeatureFlags/master/screenshot.png)
 
@@ -62,6 +62,16 @@ namespace MyApplication
             // Apply authentication / authorization around the `UseFeatureFlagsUI` method as needed,
             // as this method wires up the various endpoints.
             app.UseFeatureFlagsUI(options);
+
+            // Or, with ASP.NET Core 3.1:
+            app.UseRouting();
+            app.UseEndpoints(endpoints =>
+            {
+                // IMPORTANT: Controlling access of the UI / API of this library is the responsibility of the user.
+                // Apply authentication / authorization around the `UseFeatureFlagsUI` method as needed,
+                // as this method wires up the various endpoints.
+                endpoints.MapFeatureFlagsUI(options);
+            });
         }
     }
 }
