@@ -16,7 +16,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
             services.AddFeatureFlags(Options);
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseFeatureFlags(Options);
 
