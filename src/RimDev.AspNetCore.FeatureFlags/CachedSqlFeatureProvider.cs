@@ -30,6 +30,8 @@ namespace RimDev.AspNetCore.FeatureFlags
 
         private readonly string connectionString;
 
+        private readonly string schema;
+
         private readonly TimeSpan cacheLifetime;
 
         private DateTime? cacheLastUpdatedAt;
@@ -37,10 +39,12 @@ namespace RimDev.AspNetCore.FeatureFlags
         public CachedSqlFeatureProvider(
             IEnumerable<Assembly> featureFlagAssemblies,
             string connectionString,
+            string schema = "dbo",
             TimeSpan? cacheLifetime = null)
         {
             this.featureFlagAssemblies = featureFlagAssemblies ?? throw new ArgumentNullException(nameof(featureFlagAssemblies));
             this.connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+            this.schema = schema ?? throw new ArgumentNullException(nameof(schema));
             this.cacheLifetime = cacheLifetime ?? TimeSpan.FromMinutes(1);
         }
 
@@ -124,9 +128,9 @@ namespace RimDev.AspNetCore.FeatureFlags
                     await conn.OpenAsync().ConfigureAwait(false);
 
                     var sql = $@"
-if not exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = '{TableName}')
+if not exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA = '{schema}' and TABLE_NAME = '{TableName}')
 begin
-  create table {TableName} (FeatureName varchar(255), Feature varchar(4000))
+  create table [${schema}].[{TableName}] (FeatureName varchar(255), Feature varchar(4000))
 end";
 
                     using (var cmd = new SqlCommand(sql, conn))
@@ -151,7 +155,7 @@ end";
             {
                 await conn.OpenAsync().ConfigureAwait(false);
 
-                var sql = $"select FeatureName, Feature from {TableName}";
+                var sql = $"select FeatureName, Feature from [{schema}].[{TableName}]";
 
                 using (var cmd = new SqlCommand(sql, conn))
                 {
@@ -183,8 +187,8 @@ end";
                 try
                 {
                     var sql = $@"
-delete from {TableName} where FeatureName = @featureName;
-insert into {TableName} (FeatureName, Feature) values (@featureName, @feature);";
+delete from [{schema}].[{TableName}] where FeatureName = @featureName;
+insert into [{schema}].[{TableName}] (FeatureName, Feature) values (@featureName, @feature);";
 
                     var cmd = new SqlCommand(sql, conn, transaction);
 
