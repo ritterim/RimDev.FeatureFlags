@@ -6,13 +6,17 @@ namespace RimDev.AspNetCore.FeatureFlags
     {
         public static FeatureFlagOptions UseCachedSqlFeatureProvider(
             this FeatureFlagOptions options,
-            string connectionString)
+            string connectionString,
+            string schema = "dbo",
+            string tableName = "RimDevAspNetCoreFeatureFlags")
         {
             if (connectionString == null) throw new ArgumentNullException(nameof(connectionString));
 
             options.Provider = new CachedSqlFeatureProvider(
                 options.FeatureFlagAssemblies,
-                connectionString);
+                connectionString,
+                schema: schema,
+                tableName: tableName);
 
             return options;
         }
