@@ -12,8 +12,6 @@ namespace RimDev.AspNetCore.FeatureFlags
 {
     public class CachedSqlFeatureProvider : IFeatureProvider
     {
-        private const string TableName = "RimDevAspNetCoreFeatureFlags";
-
         private static readonly JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings
         {
             TypeNameHandling = TypeNameHandling.All
@@ -30,6 +28,10 @@ namespace RimDev.AspNetCore.FeatureFlags
 
         private readonly string connectionString;
 
+        private readonly string schema;
+
+        private readonly string tableName;
+
         private readonly TimeSpan cacheLifetime;
 
         private DateTime? cacheLastUpdatedAt;
@@ -37,10 +39,14 @@ namespace RimDev.AspNetCore.FeatureFlags
         public CachedSqlFeatureProvider(
             IEnumerable<Assembly> featureFlagAssemblies,
             string connectionString,
+            string schema = "dbo",
+            string tableName = "RimDevAspNetCoreFeatureFlags",
             TimeSpan? cacheLifetime = null)
         {
             this.featureFlagAssemblies = featureFlagAssemblies ?? throw new ArgumentNullException(nameof(featureFlagAssemblies));
             this.connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+            this.schema = schema ?? throw new ArgumentNullException(nameof(schema));
+            this.tableName = tableName ?? throw new ArgumentNullException(nameof(tableName));
             this.cacheLifetime = cacheLifetime ?? TimeSpan.FromMinutes(1);
         }
 
@@ -124,9 +130,9 @@ namespace RimDev.AspNetCore.FeatureFlags
                     await conn.OpenAsync().ConfigureAwait(false);
 
                     var sql = $@"
-if not exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_NAME = '{TableName}')
+if not exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA = '{schema}' and TABLE_NAME = '{tableName}')
 begin
-  create table {TableName} (FeatureName varchar(255), Feature varchar(4000))
+  create table [${schema}].[{tableName}] (FeatureName varchar(255), Feature varchar(4000))
 end";
 
                     using (var cmd = new SqlCommand(sql, conn))
@@ -151,7 +157,7 @@ end";
             {
                 await conn.OpenAsync().ConfigureAwait(false);
 
-                var sql = $"select FeatureName, Feature from {TableName}";
+                var sql = $"select FeatureName, Feature from [{schema}].[{tableName}]";
 
                 using (var cmd = new SqlCommand(sql, conn))
                 {
@@ -183,8 +189,8 @@ end";
                 try
                 {
                     var sql = $@"
-delete from {TableName} where FeatureName = @featureName;
-insert into {TableName} (FeatureName, Feature) values (@featureName, @feature);";
+delete from [{schema}].[{tableName}] where FeatureName = @featureName;
+insert into [{schema}].[{tableName}] (FeatureName, Feature) values (@featureName, @feature);";
 
                     var cmd = new SqlCommand(sql, conn, transaction);
 
