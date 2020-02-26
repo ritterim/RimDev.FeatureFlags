@@ -132,7 +132,7 @@ namespace RimDev.AspNetCore.FeatureFlags
                     var sql = $@"
 if not exists (select * from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA = '{schema}' and TABLE_NAME = '{tableName}')
 begin
-  create table [${schema}].[{tableName}] (FeatureName varchar(255), Feature varchar(4000))
+  create table [{schema}].[{tableName}] (FeatureName varchar(255), Feature varchar(4000))
 end";
 
                     using (var cmd = new SqlCommand(sql, conn))
