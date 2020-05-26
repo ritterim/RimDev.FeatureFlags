@@ -20,6 +20,7 @@ namespace RimDev.AspNetCore.FeatureFlags
         private static bool databaseInitialized;
 
         private static readonly SemaphoreSlim initializeDatabaseSemaphore = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim hydrateCacheIfNeededSemaphore = new SemaphoreSlim(1, 1);
 
         private readonly ConcurrentDictionary<string, object> cache =
             new ConcurrentDictionary<string, object>();
@@ -87,7 +88,10 @@ namespace RimDev.AspNetCore.FeatureFlags
 
         private async Task HydrateCacheIfNeeded()
         {
-            if (!cacheLastUpdatedAt.HasValue || cacheLastUpdatedAt < DateTime.UtcNow.Subtract(cacheLifetime))
+            Func<bool> cacheStale = () => !cacheLastUpdatedAt.HasValue
+                || cacheLastUpdatedAt < DateTime.UtcNow.Subtract(cacheLifetime);
+
+            if (cacheStale())
             {
                 // Hydrate with all defined types
                 foreach (var featureType in featureFlagAssemblies.GetFeatureTypes())
@@ -99,23 +103,38 @@ namespace RimDev.AspNetCore.FeatureFlags
                     cache.AddOrUpdate(featureName, feature, (_, __) => feature);
                 }
 
-                // Overwrite cached items based on existing database items
-                var features = await GetAllFeaturesFromDatabase().ConfigureAwait(false);
-
-                // Filter out features that no longer exist but were persisted in the database previously
-                // to avoid JsonSerializationException on `JsonConvert.DeserializeObject` for missing type.
-                features = features
-                    .Where(x => cache.TryGetValue(x.Key, out var cachedFeature) && cachedFeature != default)
-                    .ToDictionary(x => x.Key, x => x.Value);
-
-                foreach (var feature in features)
+                try
                 {
-                    var value = JsonConvert.DeserializeObject(feature.Value, jsonSerializerSettings);
+                    await hydrateCacheIfNeededSemaphore.WaitAsync().ConfigureAwait(false);
 
-                    cache.AddOrUpdate(feature.Key, value, (_, __) => value);
+                    // Another thread could have refreshed the cache since the previous statement
+                    if (!cacheStale())
+                    {
+                        return;
+                    }
+
+                    // Overwrite cached items based on existing database items
+                    var features = await GetAllFeaturesFromDatabase().ConfigureAwait(false);
+
+                    // Filter out features that no longer exist but were persisted in the database previously
+                    // to avoid JsonSerializationException on `JsonConvert.DeserializeObject` for missing type.
+                    features = features
+                        .Where(x => cache.TryGetValue(x.Key, out var cachedFeature) && cachedFeature != default)
+                        .ToDictionary(x => x.Key, x => x.Value);
+
+                    foreach (var feature in features)
+                    {
+                        var value = JsonConvert.DeserializeObject(feature.Value, jsonSerializerSettings);
+
+                        cache.AddOrUpdate(feature.Key, value, (_, __) => value);
+                    }
+
+                    cacheLastUpdatedAt = DateTime.UtcNow;
                 }
-
-                cacheLastUpdatedAt = DateTime.UtcNow;
+                finally
+                {
+                    hydrateCacheIfNeededSemaphore.Release();
+                }
             }
         }
 

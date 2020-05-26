@@ -43,20 +43,23 @@ namespace FeatureFlags.AspNetCore
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.Map("/test-feature", async context =>
+                endpoints.Map("/test-features", async context =>
                 {
                     var testFeature = context.RequestServices.GetService<TestFeature>();
+                    var testFeature2 = context.RequestServices.GetService<TestFeature2>();
+                    var testFeature3 = context.RequestServices.GetService<TestFeature3>();
 
                     context.Response.ContentType = "text/html";
                     await context.Response.WriteAsync($@"
-                    {testFeature.GetType().Name}: {testFeature.Value}
-                    <br />
+                    {testFeature.GetType().Name}: {testFeature.Value}<br />
+                    {testFeature2.GetType().Name}: {testFeature2.Value}<br />
+                    {testFeature3.GetType().Name}: {testFeature3.Value}<br />
                     <a href=""{options.UiPath}"">View UI</a>");
                 });
 
                 endpoints.Map("", context =>
                 {
-                    context.Response.Redirect("/test-feature");
+                    context.Response.Redirect("/test-features");
 
                     return Task.CompletedTask;
                 });
