@@ -25,6 +25,8 @@
     
     <!-- Package sub-dependencies which are pinned to avoid Snyk reported vulnerabilities, these can be removed later -->
     <PackageReference Include="System.Text.Encodings.Web" Version="4.5.1" />
+    <!-- end of pinned sub-dependencies -->
+  
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
