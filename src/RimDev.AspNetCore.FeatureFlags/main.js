@@ -23,7 +23,7 @@ fetch('/_features/get_all', fetchOptions)
       </span>
     </li>`);
 
-    featuresContainer.innerHTML = features.join('');
+    featuresContainer.innerHTML = DOMPurify.sanitize(features.join(''));
 
     [...featuresContainer.getElementsByClassName('mdl-switch')].forEach(toggle => {
       componentHandler.upgradeElement(toggle);
