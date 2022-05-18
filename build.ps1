@@ -1,5 +1,8 @@
 New-Item -ItemType directory -Path "build" -Force | Out-Null
 
+# Release whenever a commit is merged to master
+$ENV:UseMasterReleaseStrategy = "true"
+
 # The following variables should be set if unit tests need the Azurite (Azure Storage) Docker container created
 # Only do this if running under APPVEYOR
 #if (Test-Path 'env:APPVEYOR') {
