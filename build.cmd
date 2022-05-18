@@ -1,9 +1,3 @@
-@echo Off
-pushd %~dp0
-setlocal enabledelayedexpansion
+@echo off
 
-rmdir /s /q "artifacts"
-
-dotnet build --configuration Release
-dotnet test --configuration Release --no-build
-dotnet pack --configuration Release --no-build --output artifacts
+powershell -ExecutionPolicy RemoteSigned -File ./build.ps1
