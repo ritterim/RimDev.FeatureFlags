@@ -1,9 +1,7 @@
-#if NETCOREAPP3_1
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 
-namespace RimDev.AspNetCore.FeatureFlags
+namespace RimDev.AspNetCore.FeatureFlags.UI
 {
     public static class IEndpointRouteBuilderExtensions
     {
@@ -50,5 +48,3 @@ namespace RimDev.AspNetCore.FeatureFlags
         }
     }
 }
-
-#endif

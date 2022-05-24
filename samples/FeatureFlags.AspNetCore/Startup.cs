@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RimDev.AspNetCore.FeatureFlags;
 using System.Threading.Tasks;
+using RimDev.AspNetCore.FeatureFlags.UI;
 
 namespace FeatureFlags.AspNetCore
 {
@@ -37,7 +38,7 @@ namespace FeatureFlags.AspNetCore
             }
 
             app.UseFeatureFlags(options);
-            //app.UseFeatureFlagsUI(options);
+            app.UseFeatureFlagsUI(options);
 
             app.UseRouting();
 

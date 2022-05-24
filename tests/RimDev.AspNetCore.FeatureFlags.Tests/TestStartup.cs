@@ -1,6 +1,8 @@
+using FeatureFlags.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using RimDev.AspNetCore.FeatureFlags.UI;
 
 namespace RimDev.AspNetCore.FeatureFlags.Tests
 {

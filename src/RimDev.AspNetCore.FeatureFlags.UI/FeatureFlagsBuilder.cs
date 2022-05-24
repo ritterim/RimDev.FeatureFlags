@@ -1,14 +1,14 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 
-namespace RimDev.AspNetCore.FeatureFlags
+namespace RimDev.AspNetCore.FeatureFlags.UI
 {
-    internal class FeatureFlagsBuilder
+    internal static class FeatureFlagsBuilder
     {
         internal static async Task ApiGetPath(HttpContext context, FeatureFlagOptions options)
         {

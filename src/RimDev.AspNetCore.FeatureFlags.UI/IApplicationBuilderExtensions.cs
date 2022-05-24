@@ -1,28 +1,9 @@
 using Microsoft.AspNetCore.Builder;
 
-namespace RimDev.AspNetCore.FeatureFlags
+namespace RimDev.AspNetCore.FeatureFlags.UI
 {
     public static class IApplicationBuilderExtensions
     {
-        private static bool providerInitialized;
-
-        public static IApplicationBuilder UseFeatureFlags(
-            this IApplicationBuilder builder,
-            FeatureFlagOptions options = default(FeatureFlagOptions))
-        {
-            if (!providerInitialized)
-            {
-                options.Provider.Initialize()
-                    .ConfigureAwait(false)
-                    .GetAwaiter()
-                    .GetResult();
-
-                providerInitialized = true;
-            }
-
-            return builder;
-        }
-
         public static IApplicationBuilder UseFeatureFlagsUI(
             this IApplicationBuilder builder,
             FeatureFlagOptions options = default(FeatureFlagOptions))
