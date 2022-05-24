@@ -8,7 +8,8 @@ namespace RimDev.AspNetCore.FeatureFlags
     public static class IEnumerableExtensions
     {
         public static IEnumerable<Type> GetFeatureTypes(
-            this IEnumerable<Assembly> featureFlagAssemblies)
+            this IEnumerable<Assembly> featureFlagAssemblies
+            )
         {
             return featureFlagAssemblies
                 .SelectMany(assembly => assembly.GetTypes())
@@ -17,7 +18,8 @@ namespace RimDev.AspNetCore.FeatureFlags
 
         public static Type GetFeatureType(
             this IEnumerable<Assembly> featureFlagAssemblies,
-            string featureName)
+            string featureName
+            )
         {
             return GetFeatureTypes(featureFlagAssemblies)
                 .SingleOrDefault(x => x.Name == featureName);
