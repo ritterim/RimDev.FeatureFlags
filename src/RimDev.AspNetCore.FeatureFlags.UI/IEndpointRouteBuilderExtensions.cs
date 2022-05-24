@@ -7,39 +7,39 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
     {
         public static IEndpointConventionBuilder MapFeatureFlagsUI(
             this IEndpointRouteBuilder builder,
-            FeatureFlagOptions options = default(FeatureFlagOptions))
+            FeatureFlagUiSettings settings = default(FeatureFlagUiSettings))
         {
             return builder.Map(
-                options.UiPath + "/{**path}",
+                settings.UiPath + "/{**path}",
                 async context =>
                 {
                     var path = context.Request.Path;
 
-                    if (path == options.ApiGetPath)
+                    if (path == settings.ApiGetPath)
                     {
-                        await FeatureFlagsBuilder.ApiGetPath(context, options);
+                        await FeatureFlagsUiBuilder.ApiGetPath(context, settings);
                         return;
                     }
 
-                    if (path == options.ApiGetAllPath)
+                    if (path == settings.ApiGetAllPath)
                     {
-                        await FeatureFlagsBuilder.ApiGetAllPath(context, options);
+                        await FeatureFlagsUiBuilder.ApiGetAllPath(context, settings);
                         return;
                     }
 
-                    if (path == options.ApiSetPath)
+                    if (path == settings.ApiSetPath)
                     {
-                        await FeatureFlagsBuilder.ApiSetPath(context, options);
+                        await FeatureFlagsUiBuilder.ApiSetPath(context, settings);
                         return;
                     }
 
-                    if (path == $"{options.UiPath}/main.js")
+                    if (path == $"{settings.UiPath}/main.js")
                     {
                         await context.Response.WriteManifestResource(typeof(IApplicationBuilderExtensions), "application/javascript", "main.js");
                         return;
                     }
 
-                    if (path == options.UiPath)
+                    if (path == settings.UiPath)
                     {
                         await context.Response.WriteManifestResource(typeof(IApplicationBuilderExtensions), "text/html", "index.html");
                         return;

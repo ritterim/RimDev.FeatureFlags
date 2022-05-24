@@ -13,6 +13,11 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
             FeatureFlagAssemblies = new[] { typeof(TestStartup).Assembly },
         }.UseInMemoryFeatureProvider();
 
+        public static readonly FeatureFlagUiSettings UserInterfaceSettings = new FeatureFlagUiSettings
+        {
+            FeatureFlagAssemblies = new[] { typeof(TestStartup).Assembly },
+        };
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddFeatureFlags(Options);
@@ -28,7 +33,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
              */
             app.ApplicationServices.GetRequiredService<TestFeature>();
 
-            app.UseFeatureFlagsUI(Options);
+            app.UseFeatureFlagsUI(UserInterfaceSettings);
         }
     }
 }

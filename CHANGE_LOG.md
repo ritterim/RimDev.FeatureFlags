@@ -12,7 +12,7 @@ The main package now only targets .NET Standard 2.0, with an additional package 
 
 ### Additions
 
-- `bool Feature.IsEnabled` property replaces the `Feature.Value` property.
+- `FeatureFlagUiSettings`: Is the new settings class for the UI project classes.  Some of these properties used to be in `FeatureFlagOptions`.
 
 ### Changes
 
@@ -23,7 +23,7 @@ The main package now only targets .NET Standard 2.0, with an additional package 
 ### Removed / Obsoleted
 
 - `Feature.ServiceLifetime` property.  All feature objects are constructed as `Scoped` lifetime.
-- `Feature.Value` property.  Use `Feature.IsEnabled`.
+- Some properties in `FeatureFlagOptions` related to the user-interface / API.  See `FeatureFlagUiSettings`
 
 ### Initial Plans
 

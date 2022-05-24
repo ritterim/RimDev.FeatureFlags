@@ -8,9 +8,9 @@ using Newtonsoft.Json;
 
 namespace RimDev.AspNetCore.FeatureFlags.UI
 {
-    internal static class FeatureFlagsBuilder
+    internal static class FeatureFlagsUiBuilder
     {
-        internal static async Task ApiGetPath(HttpContext context, FeatureFlagOptions options)
+        internal static async Task ApiGetPath(HttpContext context, FeatureFlagUiSettings settings)
         {
             if (context.Request.Method != HttpMethods.Get)
             {
@@ -31,7 +31,7 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
                 return;
             }
 
-            var featureType = options.FeatureFlagAssemblies.GetFeatureType(featureName);
+            var featureType = settings.FeatureFlagAssemblies.GetFeatureType(featureName);
 
             if (featureType == null)
             {
@@ -46,7 +46,7 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
             await context.Response.WriteAsync(json).ConfigureAwait(false);
         }
 
-        internal static async Task ApiGetAllPath(HttpContext context, FeatureFlagOptions options)
+        internal static async Task ApiGetAllPath(HttpContext context, FeatureFlagUiSettings settings)
         {
             if (context.Request.Method != HttpMethods.Get)
             {
@@ -61,7 +61,7 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
                     $"{nameof(FeatureFlags)} must be registered via AddFeatureFlags()");
 
             var features = new List<object>();
-            foreach (var featureType in options.FeatureFlagAssemblies.GetFeatureTypes())
+            foreach (var featureType in settings.FeatureFlagAssemblies.GetFeatureTypes())
             {
                 var feature = await featureFlags.Get(featureType).ConfigureAwait(false);
 
@@ -73,7 +73,7 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
             await context.Response.WriteAsync(json).ConfigureAwait(false);
         }
 
-        internal static async Task ApiSetPath(HttpContext context, FeatureFlagOptions options)
+        internal static async Task ApiSetPath(HttpContext context, FeatureFlagUiSettings settings)
         {
             if (context.Request.Method != HttpMethods.Post)
             {
@@ -98,7 +98,7 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
             var setRequest = (FeatureSetRequest)JsonConvert.DeserializeObject(
                 requestString, typeof(FeatureSetRequest));
 
-            var featureType = options.FeatureFlagAssemblies.GetFeatureType(setRequest.Feature);
+            var featureType = settings.FeatureFlagAssemblies.GetFeatureType(setRequest.Feature);
 
             if (featureType == null)
             {

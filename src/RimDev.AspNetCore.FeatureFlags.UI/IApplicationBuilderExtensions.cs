@@ -6,24 +6,26 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
     {
         public static IApplicationBuilder UseFeatureFlagsUI(
             this IApplicationBuilder builder,
-            FeatureFlagOptions options = default(FeatureFlagOptions))
+            FeatureFlagUiSettings settings = default(FeatureFlagUiSettings))
         {
-            builder.Map(options.ApiGetPath, appBuilder =>
+            settings ??= new FeatureFlagUiSettings();
+
+            builder.Map(settings.ApiGetPath, appBuilder =>
             {
-                appBuilder.Run(context => FeatureFlagsBuilder.ApiGetPath(context, options));
+                appBuilder.Run(context => FeatureFlagsUiBuilder.ApiGetPath(context, settings));
             });
 
-            builder.Map(options.ApiGetAllPath, appBuilder =>
+            builder.Map(settings.ApiGetAllPath, appBuilder =>
             {
-                appBuilder.Run(context => FeatureFlagsBuilder.ApiGetAllPath(context, options));
+                appBuilder.Run(context => FeatureFlagsUiBuilder.ApiGetAllPath(context, settings));
             });
 
-            builder.Map(options.ApiSetPath, appBuilder =>
+            builder.Map(settings.ApiSetPath, appBuilder =>
             {
-                appBuilder.Run(context => FeatureFlagsBuilder.ApiSetPath(context, options));
+                appBuilder.Run(context => FeatureFlagsUiBuilder.ApiSetPath(context, settings));
             });
 
-            builder.Map(options.UiPath, x =>
+            builder.Map(settings.UiPath, x =>
             {
                 x.Map($"/main.js", y => y.Run(context => context.Response.WriteManifestResource(typeof(IApplicationBuilderExtensions), "application/javascript", "main.js")));
                 x.Run(context => context.Response.WriteManifestResource(typeof(IApplicationBuilderExtensions), "text/html", "index.html"));

@@ -13,6 +13,7 @@ namespace FeatureFlags.AspNetCore
     public class Startup
     {
         private readonly FeatureFlagOptions options;
+        private readonly FeatureFlagUiSettings userInterfaceSettings;
 
         public IConfiguration Configuration { get; }
 
@@ -23,6 +24,8 @@ namespace FeatureFlags.AspNetCore
             options = new FeatureFlagOptions()
                 .UseInMemoryFeatureProvider();
                 // .UseCachedSqlFeatureProvider(Configuration.GetConnectionString("localDb"));
+
+            userInterfaceSettings = new FeatureFlagUiSettings();
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -38,7 +41,7 @@ namespace FeatureFlags.AspNetCore
             }
 
             app.UseFeatureFlags(options);
-            app.UseFeatureFlagsUI(options);
+            app.UseFeatureFlagsUI(userInterfaceSettings);
 
             app.UseRouting();
 
@@ -55,7 +58,7 @@ namespace FeatureFlags.AspNetCore
                     {testFeature.GetType().Name}: {testFeature.Value}<br />
                     {testFeature2.GetType().Name}: {testFeature2.Value}<br />
                     {testFeature3.GetType().Name}: {testFeature3.Value}<br />
-                    <a href=""{options.UiPath}"">View UI</a>");
+                    <a href=""{userInterfaceSettings.UiPath}"">View UI</a>");
                 });
 
                 endpoints.Map("", context =>
@@ -65,7 +68,7 @@ namespace FeatureFlags.AspNetCore
                     return Task.CompletedTask;
                 });
 
-                endpoints.MapFeatureFlagsUI(options);
+                endpoints.MapFeatureFlagsUI(userInterfaceSettings);
             });
         }
     }

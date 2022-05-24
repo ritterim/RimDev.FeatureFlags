@@ -31,7 +31,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
             await TestStartup.Options.Provider.Set(testFeature);
 
             var response = await client.GetAsync(
-                $"{TestStartup.Options.ApiGetPath}?feature={testFeature.GetType().Name}");
+                $"{TestStartup.UserInterfaceSettings.ApiGetPath}?feature={testFeature.GetType().Name}");
 
             response.EnsureSuccessStatusCode();
 
@@ -59,7 +59,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
             await TestStartup.Options.Provider.Set(testFeature);
             await TestStartup.Options.Provider.Set(testFeature2);
 
-            var response = await client.GetAsync(TestStartup.Options.ApiGetAllPath);
+            var response = await client.GetAsync(TestStartup.UserInterfaceSettings.ApiGetAllPath);
 
             response.EnsureSuccessStatusCode();
 
@@ -85,7 +85,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
             };
 
             var response = await client.PostAsync(
-                TestStartup.Options.ApiSetPath,
+                TestStartup.UserInterfaceSettings.ApiSetPath,
                 new StringContent(JsonConvert.SerializeObject(
                     new FeatureSetRequest
                     {
@@ -105,7 +105,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
         {
             var client = factory.CreateClient();
 
-            var response = await client.GetAsync(TestStartup.Options.UiPath);
+            var response = await client.GetAsync(TestStartup.UserInterfaceSettings.UiPath);
 
             response.EnsureSuccessStatusCode();
 
