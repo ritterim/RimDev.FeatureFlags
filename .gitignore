@@ -279,3 +279,4 @@ __pycache__/
 build/
 tools/
 build.cake
+.DS_Store
