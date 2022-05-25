@@ -25,7 +25,7 @@ namespace RimDev.AspNetCore.FeatureFlags
                         .GetResult();
 
                     return featureFlag;
-                }, feature.ServiceLifetime));
+                }, ServiceLifetime.Scoped));
             }
 
             return service;

@@ -11,9 +11,11 @@ namespace RimDev.AspNetCore.FeatureFlags
         [JsonProperty("description")]
         public virtual string Description { get; }
 
+        [Obsolete("All Feature objects are now registered as Scoped.")]
         [JsonProperty("serviceLifetime")]
         public virtual ServiceLifetime ServiceLifetime { get; }
-            = ServiceLifetime.Transient; // TODO: Default to Scoped in v2?
+            = ServiceLifetime.Transient;
+
 
         [JsonProperty("value")]
         public bool Value { get; set; }
