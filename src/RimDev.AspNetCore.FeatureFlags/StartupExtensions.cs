@@ -33,7 +33,7 @@ namespace RimDev.AspNetCore.FeatureFlags
                         .GetResult();;
                     var feature = (Feature)Activator.CreateInstance(featureType)
                         ?? throw new Exception($"Unable to create instance of {featureType.Name}.");
-                    feature.Value = value;
+                    feature.Enabled = value;
                     return feature;
                 });
             }

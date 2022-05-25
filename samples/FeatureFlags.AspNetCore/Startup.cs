@@ -55,9 +55,9 @@ namespace FeatureFlags.AspNetCore
 
                     context.Response.ContentType = "text/html";
                     await context.Response.WriteAsync($@"
-                    {testFeature.GetType().Name}: {testFeature.Value}<br />
-                    {testFeature2.GetType().Name}: {testFeature2.Value}<br />
-                    {testFeature3.GetType().Name}: {testFeature3.Value}<br />
+                    {testFeature.GetType().Name}: {testFeature.Enabled}<br />
+                    {testFeature2.GetType().Name}: {testFeature2.Enabled}<br />
+                    {testFeature3.GetType().Name}: {testFeature3.Enabled}<br />
                     <a href=""{userInterfaceSettings.UiPath}"">View UI</a>");
                 });
 

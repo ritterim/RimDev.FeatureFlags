@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
@@ -16,8 +17,11 @@ namespace RimDev.AspNetCore.FeatureFlags
         public virtual ServiceLifetime ServiceLifetime { get; }
             = ServiceLifetime.Transient;
 
-
+        [Obsolete("Use the Enabled property.")]
         [JsonProperty("value")]
         public bool Value { get; set; }
+
+        [JsonProperty("enabled")]
+        public bool Enabled { get; set; }
     }
 }

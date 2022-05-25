@@ -108,7 +108,7 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
 
             var feature = Activator.CreateInstance(featureType);
 
-            (feature as Feature).Value = setRequest.Value;
+            (feature as Feature).Enabled = setRequest.Value;
 
             await featureFlags.Set(feature).ConfigureAwait(false);
 

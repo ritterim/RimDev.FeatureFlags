@@ -25,7 +25,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
 
             var testFeature = new TestFeature
             {
-                Value = true
+                Enabled = true
             };
 
             await TestStartup.Options.Provider.Set(testFeature);
@@ -37,7 +37,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
 
             var feature = await response.Content.ReadAsJson<TestFeature>();
 
-            Assert.True(feature.Value);
+            Assert.True(feature.Enabled);
         }
 
         [Fact]
@@ -48,12 +48,12 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
 
             var testFeature = new TestFeature
             {
-                Value = true
+                Enabled = true
             };
 
             var testFeature2 = new TestFeature2
             {
-                Value = true
+                Enabled = true
             };
 
             await TestStartup.Options.Provider.Set(testFeature);
@@ -68,7 +68,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
 
             Assert.Equal(2, features.Count());
 
-            Assert.All(features, feature => Assert.True(feature.Value));
+            Assert.All(features, feature => Assert.True(feature.Enabled));
         }
 
         [Fact]
@@ -81,7 +81,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
 
             var feature = new TestFeature
             {
-                Value = true
+                Enabled = true
             };
 
             var response = await client.PostAsync(
@@ -97,7 +97,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
 
             var providerFeature = await provider.Get(typeof(TestFeature).Name);
 
-            Assert.True(providerFeature.Value);
+            Assert.True(providerFeature.Enabled);
         }
 
         [Fact]
