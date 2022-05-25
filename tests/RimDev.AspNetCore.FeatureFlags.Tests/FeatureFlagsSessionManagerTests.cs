@@ -1,6 +1,8 @@
+using System.Data.Common;
 using System.Threading.Tasks;
 using LazyCache;
 using RimDev.AspNetCore.FeatureFlags.DbCommandFactories;
+using RimDev.AspNetCore.FeatureFlags.DbCommandFactories.Defaults;
 using RimDev.AspNetCore.FeatureFlags.Tests.Testing;
 using RimDev.AspNetCore.FeatureFlags.Tests.Testing.Database;
 using Xunit;
@@ -20,6 +22,14 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
             this.databaseFixture = databaseFixture;
         }
 
+        private class TestFunctionFactory : FeatureFlagsMsSqlDbFunctionFactory
+        {
+            public TestFunctionFactory(FeatureFlagsSettings settings) : base(settings) { }
+
+            public override DbCommand SetValue(string featureName, bool enabled)
+                => DefaultMsSqlDbFunctions.SetValue(featureName, enabled);
+        }
+
         private async Task<FeatureFlagsSessionManager> CreateSut()
         {
             var settings = new FeatureFlagsSettings
@@ -28,12 +38,12 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
                 InitializationConnectionString = databaseFixture.ConnectionString,
             };
 
-            var dbCommandFactory = new FeatureFlagsMsSqlDbCommandFactory(settings);
+            var dbCommandFactory = new TestFunctionFactory(settings);
 
             var sut = new FeatureFlagsSessionManager(
                 cache: appCache,
                 settings: settings,
-                dbCommandFactory: dbCommandFactory
+                dbFunctionFactory: dbCommandFactory
                 );
 
             await sut.CreateDatabaseTable();

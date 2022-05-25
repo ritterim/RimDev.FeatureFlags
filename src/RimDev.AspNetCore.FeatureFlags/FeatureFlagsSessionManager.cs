@@ -11,17 +11,17 @@ namespace RimDev.AspNetCore.FeatureFlags
     /// </summary>
     public class FeatureFlagsSessionManager : ILussatiteSessionManager
     {
-        private readonly IFeatureFlagsDbCommandFactory dbCommandFactory;
+        private readonly IFeatureFlagsDbFunctionFactory dbFunctionFactory;
         private readonly CachedSqlSessionManager cachedSqlSessionManager;
         private readonly FeatureFlagsSettings settings;
 
         public FeatureFlagsSessionManager(
-            IFeatureFlagsDbCommandFactory dbCommandFactory,
+            IFeatureFlagsDbFunctionFactory dbFunctionFactory,
             FeatureFlagsSettings settings = null,
             IAppCache cache = null
             )
         {
-            this.dbCommandFactory = dbCommandFactory;
+            this.dbFunctionFactory = dbFunctionFactory;
             this.settings = settings ?? new FeatureFlagsSettings();
 
             cachedSqlSessionManager = new CachedSqlSessionManager(
@@ -37,10 +37,10 @@ namespace RimDev.AspNetCore.FeatureFlags
                 CacheTime = settings.CacheTime,
                 FeatureNameColumn = settings.NameColumn,
                 FeatureValueColumn = settings.ValueColumn,
-                GetConnectionFactory = dbCommandFactory.GetConnection,
-                GetValueCommandFactory = dbCommandFactory.GetValue,
-                SetValueCommandFactory = dbCommandFactory.SetValue,
-                SetNullableValueCommandFactory = dbCommandFactory.SetNullableValue,
+                GetConnectionFactory = dbFunctionFactory.GetConnection,
+                GetValueCommandFactory = dbFunctionFactory.GetValue,
+                SetValueCommandFactory = dbFunctionFactory.SetValue,
+                SetNullableValueCommandFactory = dbFunctionFactory.SetNullableValue,
             };
         }
 
@@ -61,8 +61,8 @@ namespace RimDev.AspNetCore.FeatureFlags
 
         public async Task CreateDatabaseTable()
         {
-            await using var conn = dbCommandFactory.GetInitializationConnection();
-            await using var queryCommand = dbCommandFactory.CreateDatabaseTable();
+            await using var conn = dbFunctionFactory.GetInitializationConnection();
+            await using var queryCommand = dbFunctionFactory.CreateDatabaseTable();
             queryCommand.Connection = conn;
             await conn.OpenAsync().ConfigureAwait(false);
             await queryCommand.ExecuteNonQueryAsync().ConfigureAwait(false);

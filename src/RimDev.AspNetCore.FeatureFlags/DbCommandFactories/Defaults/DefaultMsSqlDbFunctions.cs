@@ -5,12 +5,15 @@ using System.Data.SqlClient;
 
 namespace RimDev.AspNetCore.FeatureFlags.DbCommandFactories.Defaults
 {
-    public static class DefaultMsSqlDbCommands
+    /// <summary>These are provided for interfacing with MS SQL (T-SQL).</summary>
+    public static class DefaultMsSqlDbFunctions
     {
-        internal const string DefaultSchemaName = "dbo";
-        internal const string DefaultTableName = "RimDevAspNetCoreFeatureFlags";
-        internal const string DefaultNameColumn = "FeatureName";
-        internal const string DefaultValueColumn = "Enabled";
+        // Use string constants to avoid SQL injection vulnerability.
+
+        private const string DefaultSchemaName = "dbo";
+        private const string DefaultTableName = "RimDevAspNetCoreFeatureFlags";
+        private const string DefaultNameColumn = "FeatureName";
+        private const string DefaultValueColumn = "Enabled";
 
         public static DbCommand GetValue(string featureName)
         {
@@ -90,6 +93,8 @@ COMMIT TRANSACTION;
         public static DbCommand CreateDatabaseTable()
         {
             var queryCommand = new SqlCommand();
+
+            //TODO: This should also create the schema, if it does not exist
 
             // https://sqlperformance.com/2020/09/locking/upsert-anti-pattern
             queryCommand.CommandText =
