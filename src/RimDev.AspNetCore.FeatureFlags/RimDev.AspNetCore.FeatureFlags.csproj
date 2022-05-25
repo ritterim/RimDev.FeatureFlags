@@ -20,8 +20,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Lussatite.FeatureManagement" Version="1.4.0" />
-    <PackageReference Include="Lussatite.FeatureManagement.SessionManagers" Version="1.4.0" />
+    <PackageReference Include="Lussatite.FeatureManagement" Version="1.4.1" />
+    <PackageReference Include="Lussatite.FeatureManagement.SessionManagers" Version="1.4.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
     

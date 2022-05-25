@@ -17,10 +17,10 @@ namespace RimDev.AspNetCore.FeatureFlags
         /// </summary>
         public static IServiceCollection AddFeatureFlags(
             this IServiceCollection service,
-            RimDevFeatureFlagsSettings settings = null
+            FeatureFlagsSettings settings = null
             )
         {
-            settings ??= new RimDevFeatureFlagsSettings();
+            settings ??= new FeatureFlagsSettings();
 
             foreach (var featureType in settings.FeatureFlagAssemblies.GetFeatureTypesInAssemblies())
             {
@@ -45,7 +45,7 @@ namespace RimDev.AspNetCore.FeatureFlags
             this IApplicationBuilder builder
             )
         {
-            var sessionManager = builder.ApplicationServices.GetRequiredService<RimDevFeatureFlagsSessionManager>();
+            var sessionManager = builder.ApplicationServices.GetRequiredService<FeatureFlagsSessionManager>();
             sessionManager.CreateDatabaseTable()
                 .ConfigureAwait(false)
                 .GetAwaiter()
