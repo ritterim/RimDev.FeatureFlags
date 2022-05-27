@@ -99,8 +99,6 @@ COMMIT TRANSACTION;
             // https://sqlperformance.com/2020/09/locking/upsert-anti-pattern
             queryCommand.CommandText =
                 $@"
-BEGIN TRANSACTION;
-
 if not exists
     (select * from INFORMATION_SCHEMA.TABLES
     where TABLE_SCHEMA = '{DefaultSchemaName}'
@@ -113,8 +111,6 @@ begin
     CONSTRAINT PK_{DefaultTableName}_{DefaultNameColumn} PRIMARY KEY CLUSTERED ({DefaultNameColumn})
   )
 end
-
-COMMIT TRANSACTION;
                 ";
 
             return queryCommand;
