@@ -8,9 +8,9 @@ using Newtonsoft.Json;
 
 namespace RimDev.AspNetCore.FeatureFlags.UI
 {
-    internal static class FeatureFlagsUiBuilder
+    internal class FeatureFlagsUiBuilder
     {
-        internal static async Task ApiGetPath(HttpContext context, FeatureFlagUiSettings settings)
+        internal async Task ApiGetPath(HttpContext context, FeatureFlagUiSettings settings)
         {
             if (context.Request.Method != HttpMethods.Get)
             {
@@ -18,11 +18,7 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
                 return;
             }
 
-            var featureFlags = context.RequestServices.GetService<FeatureFlags>();
-
-            if (featureFlags == null)
-                throw new InvalidOperationException(
-                    $"{nameof(FeatureFlags)} must be registered via AddFeatureFlags()");
+            var featureFlagsSessionManager = context.RequestServices.GetRequiredService<FeatureFlagsSessionManager>();
 
             var featureName = context.Request.Query["feature"];
             if (string.IsNullOrEmpty(featureName))
@@ -33,20 +29,25 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
 
             var featureType = settings.FeatureFlagAssemblies.GetFeatureType(featureName);
 
-            if (featureType == null)
+            if (featureType is null)
             {
                 context.Response.StatusCode = StatusCodes.Status404NotFound;
                 return;
             }
 
-            var feature = await featureFlags.Get(featureType).ConfigureAwait(false);
+            var value = await featureFlagsSessionManager.GetAsync(featureName);
+            var response = new FeatureResponse
+            {
+                Name = featureName,
+                Enabled = value,
+            };
 
-            var json = JsonConvert.SerializeObject(feature);
+            var json = JsonConvert.SerializeObject(response);
 
             await context.Response.WriteAsync(json).ConfigureAwait(false);
         }
 
-        internal static async Task ApiGetAllPath(HttpContext context, FeatureFlagUiSettings settings)
+        internal async Task ApiGetAllPath(HttpContext context, FeatureFlagUiSettings settings)
         {
             if (context.Request.Method != HttpMethods.Get)
             {
@@ -73,7 +74,7 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
             await context.Response.WriteAsync(json).ConfigureAwait(false);
         }
 
-        internal static async Task ApiSetPath(HttpContext context, FeatureFlagUiSettings settings)
+        internal async Task ApiSetPath(HttpContext context, FeatureFlagUiSettings settings)
         {
             if (context.Request.Method != HttpMethods.Post)
             {
@@ -81,11 +82,7 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
                 return;
             }
 
-            var featureFlags = context.RequestServices.GetService<FeatureFlags>();
-
-            if (featureFlags == null)
-                throw new InvalidOperationException(
-                    $"{nameof(FeatureFlags)} must be registered via AddFeatureFlags()");
+            var featureFlagsSessionManager = context.RequestServices.GetRequiredService<FeatureFlagsSessionManager>();
 
             string requestString;
             using (var streamReader = new StreamReader(context.Request.Body))
@@ -95,22 +92,28 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
                     .ConfigureAwait(false);
             }
 
-            var setRequest = (FeatureSetRequest)JsonConvert.DeserializeObject(
-                requestString, typeof(FeatureSetRequest));
+            var setRequest = (FeatureRequest) JsonConvert.DeserializeObject(
+                requestString,
+                typeof(FeatureRequest)
+                );
 
-            var featureType = settings.FeatureFlagAssemblies.GetFeatureType(setRequest.Feature);
+            if (setRequest is null)
+            {
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                return;
+            }
 
-            if (featureType == null)
+            var featureType = settings.FeatureFlagAssemblies.GetFeatureType(setRequest.Name);
+
+            if (featureType is null)
             {
                 context.Response.StatusCode = StatusCodes.Status404NotFound;
                 return;
             }
 
-            var feature = Activator.CreateInstance(featureType);
-
-            (feature as Feature).Enabled = setRequest.Value;
-
-            await featureFlags.Set(feature).ConfigureAwait(false);
+            await featureFlagsSessionManager
+                .SetNullableAsync(setRequest.Name, setRequest.Enabled)
+                .ConfigureAwait(false);
 
             context.Response.StatusCode = StatusCodes.Status204NoContent;
         }

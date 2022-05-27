@@ -9,6 +9,8 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
             this IEndpointRouteBuilder builder,
             FeatureFlagUiSettings settings = default(FeatureFlagUiSettings))
         {
+            var featureFlagsUiBuilder = new FeatureFlagsUiBuilder();
+
             return builder.Map(
                 settings.UiPath + "/{**path}",
                 async context =>
@@ -17,31 +19,31 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
 
                     if (path == settings.ApiGetPath)
                     {
-                        await FeatureFlagsUiBuilder.ApiGetPath(context, settings);
+                        await featureFlagsUiBuilder.ApiGetPath(context, settings);
                         return;
                     }
 
                     if (path == settings.ApiGetAllPath)
                     {
-                        await FeatureFlagsUiBuilder.ApiGetAllPath(context, settings);
+                        await featureFlagsUiBuilder.ApiGetAllPath(context, settings);
                         return;
                     }
 
                     if (path == settings.ApiSetPath)
                     {
-                        await FeatureFlagsUiBuilder.ApiSetPath(context, settings);
+                        await featureFlagsUiBuilder.ApiSetPath(context, settings);
                         return;
                     }
 
                     if (path == $"{settings.UiPath}/main.js")
                     {
-                        await context.Response.WriteManifestResource(typeof(IApplicationBuilderExtensions), "application/javascript", "main.js");
+                        await context.Response.WriteManifestResource(typeof(UiStartupExtensions), "application/javascript", "main.js");
                         return;
                     }
 
                     if (path == settings.UiPath)
                     {
-                        await context.Response.WriteManifestResource(typeof(IApplicationBuilderExtensions), "text/html", "index.html");
+                        await context.Response.WriteManifestResource(typeof(UiStartupExtensions), "text/html", "index.html");
                         return;
                     }
                 });
