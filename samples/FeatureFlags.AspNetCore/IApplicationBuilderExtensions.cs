@@ -10,7 +10,8 @@ namespace FeatureFlags.AspNetCore
 
         public static IApplicationBuilder UseFeatureFlags(
             this IApplicationBuilder builder,
-            FeatureFlagOptions options = default(FeatureFlagOptions))
+            FeatureFlagOptions options
+            )
         {
             if (!providerInitialized)
             {

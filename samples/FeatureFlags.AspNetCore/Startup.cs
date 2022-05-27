@@ -41,7 +41,7 @@ namespace FeatureFlags.AspNetCore
             }
 
             app.UseFeatureFlags(options);
-            app.UseFeatureFlagsUI(userInterfaceSettings);
+            app.UseFeatureFlagsUI();
 
             app.UseRouting();
 
