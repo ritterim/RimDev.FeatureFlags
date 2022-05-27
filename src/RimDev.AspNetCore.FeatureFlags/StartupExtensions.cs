@@ -17,25 +17,15 @@ namespace RimDev.AspNetCore.FeatureFlags
         /// </summary>
         public static IServiceCollection AddFeatureFlags(
             this IServiceCollection service,
-            FeatureFlagsSettings settings = null
+            IEnumerable<Assembly> featureFlagAssemblies = null
             )
         {
-            settings ??= new FeatureFlagsSettings();
+            featureFlagAssemblies ??= new List<Assembly>();
 
-            foreach (var featureType in settings.FeatureFlagAssemblies.GetFeatureTypesInAssemblies())
+            foreach (var featureType in featureFlagAssemblies.GetFeatureTypesInAssemblies())
             {
-                service.AddScoped(featureType, serviceProvider =>
-                {
-                    var featureManager = serviceProvider.GetRequiredService<IFeatureManagerSnapshot>();
-                    var value = featureManager.IsEnabledAsync(featureType.Name)
-                        .ConfigureAwait(false)
-                        .GetAwaiter()
-                        .GetResult();;
-                    var feature = (Feature)Activator.CreateInstance(featureType)
-                        ?? throw new Exception($"Unable to create instance of {featureType.Name}.");
-                    feature.Enabled = value;
-                    return feature;
-                });
+                service.AddScoped(featureType, serviceProvider
+                    => serviceProvider.GetFeatureFromFeatureManager(featureType));
             }
 
             return service;
@@ -60,6 +50,27 @@ namespace RimDev.AspNetCore.FeatureFlags
             return featureFlagAssemblies
                 .SelectMany(assembly => assembly.GetTypes())
                 .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(Feature)));
+        }
+
+        private static bool _sessionManagerInitialized;
+
+        public static IApplicationBuilder UseFeatureFlags(
+            this IApplicationBuilder builder
+            )
+        {
+            if (!_sessionManagerInitialized)
+            {
+                var featureFlagSessionManager = builder
+                    .ApplicationServices
+                    .GetRequiredService<FeatureFlagsSessionManager>();
+                featureFlagSessionManager.CreateDatabaseTable()
+                    .ConfigureAwait(false)
+                    .GetAwaiter()
+                    .GetResult();
+                _sessionManagerInitialized = true;
+            }
+
+            return builder;
         }
     }
 }
