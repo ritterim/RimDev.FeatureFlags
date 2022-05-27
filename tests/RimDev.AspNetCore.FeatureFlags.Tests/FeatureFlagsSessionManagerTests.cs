@@ -24,7 +24,13 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
 
         private class TestFunctionFactory : FeatureFlagsMsSqlDbFunctionFactory
         {
-            public TestFunctionFactory(FeatureFlagsSettings settings) : base(settings) { }
+            public TestFunctionFactory(
+                string connectionString,
+                string initializationConnectionString
+            ) : base(
+                connectionString: connectionString,
+                initializationConnectionString: initializationConnectionString
+                ) { }
 
             public override DbCommand SetValue(string featureName, bool enabled)
                 => DefaultMsSqlDbFunctions.SetValue(featureName, enabled);
@@ -32,13 +38,12 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
 
         private async Task<FeatureFlagsSessionManager> CreateSut()
         {
-            var settings = new FeatureFlagsSettings
-            {
-                ConnectionString = databaseFixture.ConnectionString,
-                InitializationConnectionString = databaseFixture.ConnectionString,
-            };
+            var settings = new FeatureFlagsSettings();
 
-            var dbCommandFactory = new TestFunctionFactory(settings);
+            var dbCommandFactory = new TestFunctionFactory(
+                connectionString: databaseFixture.ConnectionString,
+                initializationConnectionString: databaseFixture.ConnectionString
+                );
 
             var sut = new FeatureFlagsSessionManager(
                 cache: appCache,

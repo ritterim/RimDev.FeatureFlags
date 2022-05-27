@@ -6,20 +6,30 @@ namespace RimDev.AspNetCore.FeatureFlags.DbCommandFactories
 {
     public class FeatureFlagsMsSqlDbFunctionFactory : IFeatureFlagsDbFunctionFactory
     {
-        private readonly FeatureFlagsSettings settings;
+        private readonly string connectionString;
+        private readonly string initializationConnectionString;
 
-        public FeatureFlagsMsSqlDbFunctionFactory(FeatureFlagsSettings settings)
+        /// <summary>Construct the <see cref="IFeatureFlagsDbFunctionFactory"/>.</summary>
+        /// <param name="connectionString">Connection string which can perform SELECT/INSERT/UPDATE calls
+        /// against the database table.</param>
+        /// <param name="initializationConnectionString">Connection string for executing the
+        /// <see cref="DbCommand"/> to create the database table if it does not exist.</param>
+        public FeatureFlagsMsSqlDbFunctionFactory(
+            string connectionString,
+            string initializationConnectionString
+            )
         {
-            this.settings = settings;
+            this.connectionString = connectionString;
+            this.initializationConnectionString = initializationConnectionString;
         }
 
         /// <inheritdoc cref="IFeatureFlagsDbFunctionFactory.GetConnection"/>
         public virtual DbConnection GetConnection()
-            => new SqlConnection(settings.ConnectionString);
+            => new SqlConnection(connectionString);
 
         /// <inheritdoc cref="IFeatureFlagsDbFunctionFactory.GetInitializationConnection"/>
         public virtual DbConnection GetInitializationConnection()
-            => new SqlConnection(settings.InitializationConnectionString);
+            => new SqlConnection(initializationConnectionString);
 
         /// <inheritdoc cref="IFeatureFlagsDbFunctionFactory.GetValue"/>
         public virtual DbCommand GetValue(string featureName)
