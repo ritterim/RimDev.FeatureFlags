@@ -1,37 +1,39 @@
-using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using RimDev.AspNetCore.FeatureFlags.Tests.Testing.ApplicationFactory;
+using RimDev.AspNetCore.FeatureFlags.UI;
 using Xunit;
 
 namespace RimDev.AspNetCore.FeatureFlags.Tests
 {
-    public class IApplicationBuilderExtensions
+    [Collection(nameof(TestWebApplicationCollection))]
+    public class IApplicationBuilderExtensionsTests
     {
-        private readonly WebApplicationFactory<TestStartup> factory;
+        private readonly TestWebApplicationFactory fixture;
 
-        public IApplicationBuilderExtensions()
+        public IApplicationBuilderExtensionsTests(TestWebApplicationFactory fixture)
         {
-            this.factory = new TestWebApplicationFactory();
+            this.fixture = fixture;
         }
 
         [Fact]
         public async Task Get_ReturnsExpectedFeature()
         {
-            var client = factory.CreateClient();
-            await client.GetAsync("/"); // Invoke Initialize of IFeatureProvider
+            var client = fixture.CreateClient();
 
-            var testFeature = new TestFeature
+            var request = new FeatureRequest
             {
+                Name = nameof(TestFeature),
                 Enabled = true
             };
 
-            await TestStartup.Options.Provider.Set(testFeature);
+            await SetValueViaApiAsync(request);
 
             var response = await client.GetAsync(
-                $"{TestStartup.UserInterfaceSettings.ApiGetPath}?feature={testFeature.GetType().Name}");
+                $"{TestStartup.FeatureFlagUiSettings.ApiGetPath}?feature={request.GetType().Name}");
 
             response.EnsureSuccessStatusCode();
 
@@ -43,69 +45,79 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
         [Fact]
         public async Task GetAll_ReturnsExpectedFeatures()
         {
-            var client = factory.CreateClient();
-            await client.GetAsync("/"); // Invoke Initialize of IFeatureProvider
+            var client = fixture.CreateClient();
 
-            var testFeature = new TestFeature
+            var testFeature = new FeatureRequest
             {
+                Name = nameof(TestFeature),
                 Enabled = true
             };
 
-            var testFeature2 = new TestFeature2
+            var testFeature2 = new FeatureRequest
             {
+                Name = nameof(TestFeature2),
                 Enabled = true
             };
 
-            await TestStartup.Options.Provider.Set(testFeature);
-            await TestStartup.Options.Provider.Set(testFeature2);
+            await SetValueViaApiAsync(testFeature);
+            await SetValueViaApiAsync(testFeature2);
 
-            var response = await client.GetAsync(TestStartup.UserInterfaceSettings.ApiGetAllPath);
+            var response = await client.GetAsync(TestStartup.FeatureFlagUiSettings.ApiGetAllPath);
 
             response.EnsureSuccessStatusCode();
 
-            // Technically not a valid type for TestFeature2:
-            var features = await response.Content.ReadAsJson<IEnumerable<TestFeature>>();
+            var features = (await response.Content.ReadAsJson<IEnumerable<Feature>>()).ToList();
 
-            Assert.Equal(2, features.Count());
+            Assert.Equal(2, features.Count);
 
             Assert.All(features, feature => Assert.True(feature.Enabled));
         }
 
-        [Fact]
-        public async Task Set_SetsExpectedFeature()
+        private async Task SetValueViaApiAsync(FeatureRequest featureRequest)
         {
-            var client = factory.CreateClient();
-            await client.GetAsync("/"); // Invoke Initialize of IFeatureProvider
+            var client = fixture.CreateClient();
+            var response = await client.PostAsync(
+                TestStartup.FeatureFlagUiSettings.ApiSetPath,
+                new StringContent(JsonConvert.SerializeObject(featureRequest))
+                );
+            response.EnsureSuccessStatusCode();
+        }
 
-            var provider = TestStartup.Options.Provider;
+        private async Task<FeatureResponse> GetFeatureFromApiAsync(string featureName)
+        {
+            var client = fixture.CreateClient();
+            var httpResponse = await client.GetAsync(
+                $"{TestStartup.FeatureFlagUiSettings.ApiGetPath}?feature={featureName}"
+                );
+            httpResponse.EnsureSuccessStatusCode();
+            return await httpResponse.Content.ReadAsJson<FeatureResponse>();
+        }
 
-            var feature = new TestFeature
+        [Theory]
+        [InlineData(null)]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Set_SetsExpectedFeature(bool? expected)
+        {
+            var request = new FeatureRequest
             {
-                Enabled = true
+                Name = nameof(TestFeature),
+                Enabled = expected
             };
 
-            var response = await client.PostAsync(
-                TestStartup.UserInterfaceSettings.ApiSetPath,
-                new StringContent(JsonConvert.SerializeObject(
-                    new FeatureSetRequest
-                    {
-                        Feature = feature.GetType().Name,
-                        Value = true
-                    })));
+            await SetValueViaApiAsync(request);
 
-            response.EnsureSuccessStatusCode();
+            var result = await GetFeatureFromApiAsync(nameof(TestFeature));
 
-            var providerFeature = await provider.Get(typeof(TestFeature).Name);
-
-            Assert.True(providerFeature.Enabled);
+            Assert.True(result.Enabled);
         }
 
         [Fact]
         public async Task Ui_ReturnsExpectedHtml()
         {
-            var client = factory.CreateClient();
+            var client = fixture.CreateClient();
 
-            var response = await client.GetAsync(TestStartup.UserInterfaceSettings.UiPath);
+            var response = await client.GetAsync(TestStartup.FeatureFlagUiSettings.UiPath);
 
             response.EnsureSuccessStatusCode();
 
