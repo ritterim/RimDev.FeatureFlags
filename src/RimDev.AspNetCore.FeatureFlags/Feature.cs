@@ -7,7 +7,7 @@ namespace RimDev.AspNetCore.FeatureFlags
     public abstract class Feature
     {
         [JsonProperty("name")]
-        public string Name => this.GetType().Name;
+        public string Name => GetType().Name;
 
         [JsonProperty("description")]
         public virtual string Description { get; }

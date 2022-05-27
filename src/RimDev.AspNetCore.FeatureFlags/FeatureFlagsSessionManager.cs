@@ -1,3 +1,4 @@
+using System.Data.Common;
 using System.Threading.Tasks;
 using LazyCache;
 using Lussatite.FeatureManagement;
@@ -15,6 +16,10 @@ namespace RimDev.AspNetCore.FeatureFlags
         private readonly CachedSqlSessionManager cachedSqlSessionManager;
         private readonly FeatureFlagsSettings settings;
 
+        /// <summary>Create the session manager.</summary>
+        /// <param name="dbFunctionFactory"></param>
+        /// <param name="settings"><see cref="FeatureFlagsSettings"/></param>
+        /// <param name="cache">An optional <see cref="IAppCache"/> instance.</param>
         public FeatureFlagsSessionManager(
             IFeatureFlagsDbFunctionFactory dbFunctionFactory,
             FeatureFlagsSettings settings = null,
