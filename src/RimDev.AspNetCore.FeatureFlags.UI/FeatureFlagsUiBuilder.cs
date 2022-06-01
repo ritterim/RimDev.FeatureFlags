@@ -55,18 +55,24 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
                 return;
             }
 
-            var featureFlags = context.RequestServices.GetService<FeatureFlags>();
+            var sessionManager = context.RequestServices.GetService<FeatureFlagsSessionManager>();
 
-            if (featureFlags == null)
+            if (sessionManager == null)
                 throw new InvalidOperationException(
-                    $"{nameof(FeatureFlags)} must be registered via AddFeatureFlags()");
+                    $"{nameof(FeatureFlagsSessionManager)} must be registered via {nameof(UiStartupExtensions.UseFeatureFlagsUI)}()");
 
             var features = new List<object>();
             foreach (var featureType in settings.FeatureFlagAssemblies.GetFeatureTypes())
             {
-                var feature = await featureFlags.Get(featureType).ConfigureAwait(false);
+                var featureName = featureType.Name;
+                var enabled = await sessionManager.GetAsync(featureName);
+                var featureResponse = new FeatureResponse
+                {
+                    Name = featureName,
+                    Enabled = enabled,
+                };
 
-                features.Add(feature);
+                features.Add(featureResponse);
             }
 
             var json = JsonConvert.SerializeObject(features);
