@@ -10,11 +10,11 @@ using Xunit;
 namespace RimDev.AspNetCore.FeatureFlags.Tests
 {
     [Collection(nameof(TestWebApplicationCollection))]
-    public class IApplicationBuilderExtensionsTests
+    public class FeatureFlagsUiBuilderTests
     {
         private readonly TestWebApplicationFactory fixture;
 
-        public IApplicationBuilderExtensionsTests(TestWebApplicationFactory fixture)
+        public FeatureFlagsUiBuilderTests(TestWebApplicationFactory fixture)
         {
             this.fixture = fixture;
         }
@@ -66,7 +66,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
 
             response.EnsureSuccessStatusCode();
 
-            var features = (await response.Content.ReadAsJson<IEnumerable<Feature>>()).ToList();
+            var features = (await response.Content.ReadAsJson<IEnumerable<FeatureResponse>>()).ToList();
 
             Assert.Equal(2, features.Count);
 
@@ -109,7 +109,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
 
             var result = await GetFeatureFromApiAsync(nameof(TestFeature));
 
-            Assert.True(result.Enabled);
+            Assert.Equal(expected, result.Enabled);
         }
 
         [Fact]
