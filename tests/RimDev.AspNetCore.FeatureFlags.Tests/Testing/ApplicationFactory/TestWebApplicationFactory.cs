@@ -9,7 +9,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests.Testing.ApplicationFactory
 {
     public class TestWebApplicationFactory : WebApplicationFactory<TestStartup>
     {
-        public EmptyDatabaseFixture DatabaseFixture => new EmptyDatabaseFixture();
+        private readonly EmptyDatabaseFixture databaseFixture = new EmptyDatabaseFixture();
 
         protected override IWebHostBuilder CreateWebHostBuilder()
         {
@@ -26,8 +26,8 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests.Testing.ApplicationFactory
             {
                 configuration.AddInMemoryCollection(new Dictionary<string, string>
                 {
-                    { "connectionStrings:featureFlags", DatabaseFixture.ConnectionString },
-                    { "connectionStrings:featureFlagsInitialization", DatabaseFixture.ConnectionString },
+                    { "connectionStrings:featureFlags", databaseFixture.ConnectionString },
+                    { "connectionStrings:featureFlagsInitialization", databaseFixture.ConnectionString },
                 });
             });
 
