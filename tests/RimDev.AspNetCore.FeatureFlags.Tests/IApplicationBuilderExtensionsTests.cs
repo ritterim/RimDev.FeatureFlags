@@ -33,7 +33,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
             await SetValueViaApiAsync(request);
 
             var response = await client.GetAsync(
-                $"{TestStartup.FeatureFlagUiSettings.ApiGetPath}?feature={request.GetType().Name}");
+                $"{TestStartup.FeatureFlagUiSettings.ApiGetPath}?feature={request.Name}");
 
             response.EnsureSuccessStatusCode();
 
