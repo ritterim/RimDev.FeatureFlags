@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -6,31 +9,61 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RimDev.AspNetCore.FeatureFlags;
 using System.Threading.Tasks;
+using LazyCache;
+using RimDev.AspNetCore.FeatureFlags.DbCommandFactories;
 using RimDev.AspNetCore.FeatureFlags.UI;
 
 namespace FeatureFlags.AspNetCore
 {
     public class Startup
     {
-        private readonly FeatureFlagOptions options;
-        private readonly FeatureFlagUiSettings userInterfaceSettings;
+        private static readonly IEnumerable<Assembly> FeatureFlagAssemblies = new[] { typeof(Startup).Assembly };
+
+        private static readonly FeatureFlagUiSettings FeatureFlagUiSettings = new FeatureFlagUiSettings
+        {
+            FeatureFlagAssemblies = FeatureFlagAssemblies,
+        };
 
         public IConfiguration Configuration { get; }
 
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-
-            options = new FeatureFlagOptions()
-                .UseInMemoryFeatureProvider();
-                // .UseCachedSqlFeatureProvider(Configuration.GetConnectionString("localDb"));
-
-            userInterfaceSettings = new FeatureFlagUiSettings();
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddFeatureFlags(options);
+            services.AddSingleton(FeatureFlagUiSettings);
+            services.AddSingleton<IAppCache>(new CachingService());
+            services.AddSingleton(new FeatureFlagsSettings());
+
+            services.AddSingleton(provider =>
+            {
+                var settings = provider.GetRequiredService<FeatureFlagsSettings>();
+
+                const string connectionStringName = "featureFlags";
+                var connectionString = Configuration.GetConnectionString(connectionStringName);
+                if (string.IsNullOrEmpty(connectionString))
+                    throw new Exception($"Failed to retrieve connection string: {connectionStringName}");
+
+                const string initializationConnectionStringName = "featureFlagsInitialization";
+                var initializationConnectionString = Configuration.GetConnectionString(initializationConnectionStringName);
+                if (string.IsNullOrEmpty(connectionString))
+                    throw new Exception($"Failed to retrieve initialization connection string: {initializationConnectionString}");
+
+                return new FeatureFlagsSessionManager(
+                    cache: provider.GetService<IAppCache>(),
+                    dbFunctionFactory: new FeatureFlagsMsSqlDbFunctionFactory(
+                        connectionString: connectionString,
+                        initializationConnectionString: initializationConnectionString
+                    ),
+                    settings: settings
+                );
+            });
+
+            services.AddFeatureFlags(
+                featureFlagAssemblies: FeatureFlagAssemblies
+            );
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -40,36 +73,10 @@ namespace FeatureFlags.AspNetCore
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseFeatureFlags(options);
+            app.UseFeatureFlags();
             app.UseFeatureFlagsUI();
 
             app.UseRouting();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.Map("/test-features", async context =>
-                {
-                    var testFeature = context.RequestServices.GetService<TestFeature>();
-                    var testFeature2 = context.RequestServices.GetService<TestFeature2>();
-                    var testFeature3 = context.RequestServices.GetService<TestFeature3>();
-
-                    context.Response.ContentType = "text/html";
-                    await context.Response.WriteAsync($@"
-                    {testFeature.GetType().Name}: {testFeature.Enabled}<br />
-                    {testFeature2.GetType().Name}: {testFeature2.Enabled}<br />
-                    {testFeature3.GetType().Name}: {testFeature3.Enabled}<br />
-                    <a href=""{userInterfaceSettings.UiPath}"">View UI</a>");
-                });
-
-                endpoints.Map("", context =>
-                {
-                    context.Response.Redirect("/test-features");
-
-                    return Task.CompletedTask;
-                });
-
-                endpoints.MapFeatureFlagsUI(userInterfaceSettings);
-            });
         }
     }
 }
