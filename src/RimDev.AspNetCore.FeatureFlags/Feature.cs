@@ -4,6 +4,9 @@ using Newtonsoft.Json;
 
 namespace RimDev.AspNetCore.FeatureFlags
 {
+    /// <summary>
+    /// The base class for a strongly typed feature.
+    /// </summary>
     public abstract class Feature
     {
         [JsonProperty("name")]
