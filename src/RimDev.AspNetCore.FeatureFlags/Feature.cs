@@ -13,7 +13,7 @@ namespace RimDev.AspNetCore.FeatureFlags
         public string Name => GetType().Name;
 
         [JsonProperty("description")]
-        public virtual string Description { get; }
+        public string Description => GetType().GetDescription();
 
         [Obsolete("All Feature objects are now registered as Scoped.")]
         [JsonProperty("serviceLifetime")]

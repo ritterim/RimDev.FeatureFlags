@@ -40,6 +40,8 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
             var feature = await response.Content.ReadAsJson<TestFeature>();
 
             Assert.True(feature.Enabled);
+            Assert.Equal(nameof(TestFeature), feature.Name);
+            Assert.Equal("Test feature description.", feature.Description);
         }
 
         [Fact]
@@ -101,15 +103,17 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
         {
             var request = new FeatureRequest
             {
-                Name = nameof(TestFeature),
+                Name = nameof(TestFeature2),
                 Enabled = expected
             };
 
             await SetValueViaApiAsync(request);
 
-            var result = await GetFeatureFromApiAsync(nameof(TestFeature));
+            var result = await GetFeatureFromApiAsync(nameof(TestFeature2));
 
             Assert.Equal(expected, result.Enabled);
+            Assert.Equal(nameof(TestFeature2), result.Name);
+            Assert.Equal("Test feature 2 description.", result.Description);
         }
 
         [Fact]

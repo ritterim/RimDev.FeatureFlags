@@ -36,9 +36,11 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
             }
 
             var value = await featureFlagsSessionManager.GetAsync(featureName);
+
             var response = new FeatureResponse
             {
                 Name = featureName,
+                Description = featureType.GetDescription(),
                 Enabled = value,
             };
 
@@ -69,6 +71,7 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
                 var featureResponse = new FeatureResponse
                 {
                     Name = featureName,
+                    Description = featureType.GetDescription(),
                     Enabled = enabled,
                 };
 
