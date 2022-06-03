@@ -31,19 +31,6 @@ namespace RimDev.AspNetCore.FeatureFlags
             return service;
         }
 
-        public static IApplicationBuilder InitializeFeatureFlagsTable(
-            this IApplicationBuilder builder
-            )
-        {
-            var sessionManager = builder.ApplicationServices.GetRequiredService<FeatureFlagsSessionManager>();
-            sessionManager.CreateDatabaseTable()
-                .ConfigureAwait(false)
-                .GetAwaiter()
-                .GetResult();;
-
-            return builder;
-        }
-
         private static IEnumerable<Type> GetFeatureTypesInAssemblies(
             this IEnumerable<Assembly> featureFlagAssemblies)
         {
