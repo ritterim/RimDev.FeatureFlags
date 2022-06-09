@@ -10,7 +10,10 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
 {
     internal class FeatureFlagsUiBuilder
     {
-        internal async Task ApiGetPath(HttpContext context, FeatureFlagUiSettings settings)
+        internal async Task ApiGetPath(
+            HttpContext context,
+            FeatureFlagsSettings settings
+            )
         {
             if (context.Request.Method != HttpMethods.Get)
             {
@@ -49,7 +52,10 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
             await context.Response.WriteAsync(json).ConfigureAwait(false);
         }
 
-        internal async Task ApiGetAllPath(HttpContext context, FeatureFlagUiSettings settings)
+        internal async Task ApiGetAllPath(
+            HttpContext context,
+            FeatureFlagsSettings settings
+            )
         {
             if (context.Request.Method != HttpMethods.Get)
             {
@@ -83,7 +89,10 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
             await context.Response.WriteAsync(json).ConfigureAwait(false);
         }
 
-        internal async Task ApiSetPath(HttpContext context, FeatureFlagUiSettings settings)
+        internal async Task ApiSetPath(
+            HttpContext context,
+            FeatureFlagsSettings settings
+            )
         {
             if (context.Request.Method != HttpMethods.Post)
             {

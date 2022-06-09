@@ -1,22 +1,19 @@
-using System;
-using Microsoft.FeatureManagement;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace RimDev.AspNetCore.FeatureFlags
 {
     public class FeatureFlagsSettings
     {
-        /// <summary>Column name in the DbCommand result which contains the feature name.
-        /// This is used during the <see cref="ISessionManager.GetAsync"/> method to
-        /// verify the correct row was obtained from the database.</summary>
-        public string NameColumn { get; set; }
+        /// <summary>A SQL connection string which can be used to SELECT/INSERT/UPDATE
+        /// from the feature flag values table.</summary>
+        public string ConnectionString { get; set; }
 
-        /// <summary>Column name in the DbCommand result which contains the feature value.
-        /// This is used during the <see cref="ISessionManager.GetAsync"/> method to
-        /// obtain the feature flag value.</summary>
-        public string ValueColumn { get; set; }
+        /// <summary>A SQL connection string which can be used to create a missing feature
+        /// flag values table.</summary>
+        public string InitializationConnectionString { get; set; }
 
-        /// <summary>How long a cache entry will be valid until it is forced to
-        /// refresh from the database.  Defaults to 60 seconds.</summary>
-        public TimeSpan CacheTime { get; set; } = TimeSpan.FromSeconds(60);
+        /// <summary>The list of assemblies to scan for classes which inherit from <see cref="Feature"/>.</summary>
+        public IEnumerable<Assembly> FeatureFlagAssemblies { get; set; }
     }
 }

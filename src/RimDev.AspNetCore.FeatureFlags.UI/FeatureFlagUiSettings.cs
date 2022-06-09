@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Reflection;
-
 namespace RimDev.AspNetCore.FeatureFlags.UI
 {
     public class FeatureFlagUiSettings
@@ -12,8 +9,5 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
         public string ApiSetPath => UiPath + "/set";
 
         public string UiPath => "/_features";
-
-        public IEnumerable<Assembly> FeatureFlagAssemblies { get; set; }
-            = new[] { Assembly.GetEntryAssembly() };
     }
 }

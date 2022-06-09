@@ -9,25 +9,27 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
             this IApplicationBuilder builder
             )
         {
-            var settings = builder.ApplicationServices.GetRequiredService<FeatureFlagUiSettings>();
+            var settings = builder.ApplicationServices.GetRequiredService<FeatureFlagsSettings>();
+            var uiSettings = builder.ApplicationServices.GetRequiredService<FeatureFlagUiSettings>();
+
             var featureFlagsUiBuilder = new FeatureFlagsUiBuilder();
 
-            builder.Map(settings.ApiGetPath, appBuilder =>
+            builder.Map(uiSettings.ApiGetPath, appBuilder =>
             {
                 appBuilder.Run(context => featureFlagsUiBuilder.ApiGetPath(context, settings));
             });
 
-            builder.Map(settings.ApiGetAllPath, appBuilder =>
+            builder.Map(uiSettings.ApiGetAllPath, appBuilder =>
             {
                 appBuilder.Run(context => featureFlagsUiBuilder.ApiGetAllPath(context, settings));
             });
 
-            builder.Map(settings.ApiSetPath, appBuilder =>
+            builder.Map(uiSettings.ApiSetPath, appBuilder =>
             {
                 appBuilder.Run(context => featureFlagsUiBuilder.ApiSetPath(context, settings));
             });
 
-            builder.Map(settings.UiPath, x =>
+            builder.Map(uiSettings.UiPath, x =>
             {
                 x.Map($"/main.js", y => y.Run(context => context.Response.WriteManifestResource(typeof(UiStartupExtensions), "application/javascript", "main.js")));
                 x.Run(context => context.Response.WriteManifestResource(typeof(UiStartupExtensions), "text/html", "index.html"));
