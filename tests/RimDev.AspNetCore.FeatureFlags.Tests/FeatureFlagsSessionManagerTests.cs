@@ -1,8 +1,6 @@
-using System.Data.Common;
 using System.Threading.Tasks;
-using LazyCache;
-using RimDev.AspNetCore.FeatureFlags.DbCommandFactories;
-using RimDev.AspNetCore.FeatureFlags.DbCommandFactories.Defaults;
+using Lussatite.FeatureManagement.SessionManagers;
+using Lussatite.FeatureManagement.SessionManagers.SqlClient;
 using RimDev.AspNetCore.FeatureFlags.Tests.Testing;
 using RimDev.AspNetCore.FeatureFlags.Tests.Testing.Database;
 using Xunit;
@@ -13,7 +11,6 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
     public class FeatureFlagsSessionManagerTests
     {
         private readonly EmptyDatabaseFixture databaseFixture;
-        private readonly IAppCache appCache = new CachingService();
 
         public FeatureFlagsSessionManagerTests(
             EmptyDatabaseFixture databaseFixture
@@ -22,36 +19,24 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
             this.databaseFixture = databaseFixture;
         }
 
-        private class TestFunctionFactory : FeatureFlagsMsSqlDbFunctionFactory
-        {
-            public TestFunctionFactory(
-                string connectionString,
-                string initializationConnectionString
-            ) : base(
-                connectionString: connectionString,
-                initializationConnectionString: initializationConnectionString
-                ) { }
-
-            public override DbCommand SetValue(string featureName, bool enabled)
-                => DefaultMsSqlDbFunctions.SetValue(featureName, enabled);
-        }
-
         private async Task<FeatureFlagsSessionManager> CreateSut()
         {
             var settings = new FeatureFlagsSettings();
+            settings.ConnectionString = databaseFixture.ConnectionString;
+            settings.InitializationConnectionString = databaseFixture.ConnectionString;
 
-            var dbCommandFactory = new TestFunctionFactory(
-                connectionString: databaseFixture.ConnectionString,
-                initializationConnectionString: databaseFixture.ConnectionString
-                );
+            var sqlSessionManagerSettings = new SQLServerSessionManagerSettings
+            {
+                ConnectionString = databaseFixture.ConnectionString
+            };
+            var cachedSqlSessionManagerSettings = new CachedSqlSessionManagerSettings();
 
             var sut = new FeatureFlagsSessionManager(
-                cache: appCache,
-                settings: settings,
-                dbFunctionFactory: dbCommandFactory
+                sqlSessionManagerSettings: sqlSessionManagerSettings,
+                cachedSqlSessionManagerSettings: cachedSqlSessionManagerSettings
                 );
 
-            await sut.CreateDatabaseTable();
+            await sqlSessionManagerSettings.CreateDatabaseTableAsync(settings.InitializationConnectionString);
 
             return sut;
         }
