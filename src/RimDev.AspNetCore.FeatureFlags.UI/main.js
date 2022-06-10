@@ -17,7 +17,7 @@ fetch('/_features/get_all', fetchOptions)
       <span class="mdl-list__item-secondary-content">
         <a class="mdl-list__item-secondary-action" href="#">
           <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="${feature.name}">
-            <input type="checkbox" id="${feature.name}" class="mdl-switch__input"${feature.value ? " checked" : ""} />
+            <input type="checkbox" id="${feature.name}" class="mdl-switch__input"${feature.enabled ? " checked" : ""} />
           </label>
         </a>
       </span>
@@ -37,8 +37,8 @@ fetch('/_features/get_all', fetchOptions)
         fetch('/_features/set', {
           method: 'POST',
           body: JSON.stringify({
-            feature: feature,
-            value: checked
+            name: feature,
+            enabled: checked
           }),
           headers: { 'Content-Type': 'application/json' },
           ...fetchOptions
