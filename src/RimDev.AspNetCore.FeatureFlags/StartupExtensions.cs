@@ -56,7 +56,7 @@ namespace RimDev.AspNetCore.FeatureFlags
             IEnumerable<Assembly> featureFlagAssemblies
             )
         {
-            services.AddScoped(serviceProvider =>
+            services.AddSingleton(serviceProvider =>
             {
                 const string connectionStringName = "featureFlags";
                 var connectionString = configuration.GetConnectionString(connectionStringName);
