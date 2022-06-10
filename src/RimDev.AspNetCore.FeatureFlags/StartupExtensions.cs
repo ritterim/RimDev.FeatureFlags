@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Lussatite.FeatureManagement.SessionManagers;
 using Lussatite.FeatureManagement.SessionManagers.SqlClient;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -74,6 +73,15 @@ namespace RimDev.AspNetCore.FeatureFlags
                 {
                     ConnectionString = connectionString,
                     InitializationConnectionString = initializationConnectionString,
+                    SqlSessionManagerSettings = new SQLServerSessionManagerSettings
+                    {
+                        FeatureSchemaName = "dbo",
+                        FeatureTableName = "RimDevAspNetCoreFeatureFlags",
+                        FeatureNameColumn = "FeatureName",
+                        FeatureValueColumn = "Enabled",
+                        ConnectionString = connectionString,
+                        EnableSetValueCommand = false,
+                    }
                 };
             });
 
@@ -105,26 +113,12 @@ namespace RimDev.AspNetCore.FeatureFlags
             this IServiceCollection services
             )
         {
-            services.AddScoped(serviceProvider =>
+            services.AddSingleton(serviceProvider =>
             {
                 var featureFlagsSettings = serviceProvider.GetRequiredService<FeatureFlagsSettings>();
 
-                var cachedSqlSessionManagerSettings = new CachedSqlSessionManagerSettings();
-
-                var sqlSessionManagerSettings = new SQLServerSessionManagerSettings
-                {
-                    FeatureSchemaName = "dbo",
-                    FeatureTableName = "RimDevAspNetCoreFeatureFlags",
-                    FeatureNameColumn = "FeatureName",
-                    FeatureValueColumn = "Enabled",
-                    ConnectionString = featureFlagsSettings.ConnectionString,
-                    EnableSetValueCommand = false,
-                };
-
                 return new FeatureFlagsSessionManager
                 (
-                    cachedSqlSessionManagerSettings: cachedSqlSessionManagerSettings,
-                    sqlSessionManagerSettings: sqlSessionManagerSettings,
                     featureFlagsSettings: featureFlagsSettings
                 );
             });
@@ -173,10 +167,12 @@ namespace RimDev.AspNetCore.FeatureFlags
         {
             if (_sessionManagerInitialized) return app;
 
-            var sessionManager = app
+            var featureFlagsSettings = app
                 .ApplicationServices
-                .GetRequiredService<FeatureFlagsSessionManager>();
-            sessionManager.CreateDatabaseTable();
+                .GetRequiredService<FeatureFlagsSettings>();
+            featureFlagsSettings.SqlSessionManagerSettings.CreateDatabaseTable(
+                featureFlagsSettings.InitializationConnectionString
+                );
             _sessionManagerInitialized = true;
 
             return app;

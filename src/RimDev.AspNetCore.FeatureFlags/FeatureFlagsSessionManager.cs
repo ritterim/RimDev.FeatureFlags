@@ -11,18 +11,20 @@ namespace RimDev.AspNetCore.FeatureFlags
         private readonly CachedSqlSessionManager cachedSqlSessionManager;
 
         public FeatureFlagsSessionManager(
-            FeatureFlagsSettings featureFlagsSettings,
-            SqlSessionManagerSettings sqlSessionManagerSettings,
-            CachedSqlSessionManagerSettings cachedSqlSessionManagerSettings = null
+            FeatureFlagsSettings featureFlagsSettings
             )
         {
-            if (sqlSessionManagerSettings is null)
-                throw new ArgumentNullException(nameof(sqlSessionManagerSettings));
-            this.featureFlagsSettings = featureFlagsSettings;
-            cachedSqlSessionManagerSettings ??= new CachedSqlSessionManagerSettings();
+            this.featureFlagsSettings = featureFlagsSettings
+                ?? throw new ArgumentNullException(nameof(featureFlagsSettings));
+
+            var cachedSqlSessionManagerSettings = new CachedSqlSessionManagerSettings
+            {
+                CacheTime = featureFlagsSettings.CacheTime,
+            };
+
             cachedSqlSessionManager = new CachedSqlSessionManager(
                 cacheSettings: cachedSqlSessionManagerSettings,
-                settings: sqlSessionManagerSettings
+                settings: featureFlagsSettings.SqlSessionManagerSettings
                 );
         }
 
@@ -34,8 +36,5 @@ namespace RimDev.AspNetCore.FeatureFlags
 
         public async Task SetNullableAsync(string featureName, bool? enabled) =>
             await cachedSqlSessionManager.SetNullableAsync(featureName, enabled);
-
-        public void CreateDatabaseTable() =>
-            cachedSqlSessionManager.Settings.CreateDatabaseTable(featureFlagsSettings.InitializationConnectionString);
     }
 }

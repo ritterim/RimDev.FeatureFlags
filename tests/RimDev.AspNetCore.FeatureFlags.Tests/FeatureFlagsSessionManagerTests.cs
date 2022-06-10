@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Lussatite.FeatureManagement.SessionManagers;
 using Lussatite.FeatureManagement.SessionManagers.SqlClient;
 using RimDev.AspNetCore.FeatureFlags.Tests.Testing;
 using RimDev.AspNetCore.FeatureFlags.Tests.Testing.Database;
@@ -21,25 +20,27 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
 
         private async Task<FeatureFlagsSessionManager> CreateSut()
         {
-            var featureFlagsSettings = new FeatureFlagsSettings(
-                featureFlagAssemblies: new[] { typeof(FeatureFlagsSessionManagerTests).Assembly }
-                );
-            featureFlagsSettings.ConnectionString = databaseFixture.ConnectionString;
-            featureFlagsSettings.InitializationConnectionString = databaseFixture.ConnectionString;
-
             var sqlSessionManagerSettings = new SQLServerSessionManagerSettings
             {
                 ConnectionString = databaseFixture.ConnectionString
             };
-            var cachedSqlSessionManagerSettings = new CachedSqlSessionManagerSettings();
+
+            var featureFlagsSettings = new FeatureFlagsSettings(
+                featureFlagAssemblies: new[] { typeof(FeatureFlagsSessionManagerTests).Assembly }
+                )
+            {
+                ConnectionString = databaseFixture.ConnectionString,
+                InitializationConnectionString = databaseFixture.ConnectionString,
+                SqlSessionManagerSettings = sqlSessionManagerSettings,
+            };
 
             var sut = new FeatureFlagsSessionManager(
-                sqlSessionManagerSettings: sqlSessionManagerSettings,
-                cachedSqlSessionManagerSettings: cachedSqlSessionManagerSettings,
                 featureFlagsSettings: featureFlagsSettings
                 );
 
-            await sqlSessionManagerSettings.CreateDatabaseTableAsync(featureFlagsSettings.InitializationConnectionString);
+            await sqlSessionManagerSettings.CreateDatabaseTableAsync(
+                featureFlagsSettings.InitializationConnectionString
+                );
 
             return sut;
         }
