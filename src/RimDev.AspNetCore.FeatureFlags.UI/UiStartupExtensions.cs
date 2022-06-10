@@ -5,6 +5,14 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
 {
     public static class UiStartupExtensions
     {
+        public static IServiceCollection AddRimDevFeatureFlagsUi(
+            this IServiceCollection service
+            )
+        {
+            service.AddSingleton<FeatureFlagUiSettings>();
+            return service;
+        }
+
         public static IApplicationBuilder UseRimDevFeatureFlagsUi(
             this IApplicationBuilder app
             )
