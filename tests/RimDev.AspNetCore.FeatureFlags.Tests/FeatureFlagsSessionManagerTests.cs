@@ -21,7 +21,9 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
 
         private async Task<FeatureFlagsSessionManager> CreateSut()
         {
-            var featureFlagsSettings = new FeatureFlagsSettings();
+            var featureFlagsSettings = new FeatureFlagsSettings(
+                featureFlagAssemblies: new[] { typeof(FeatureFlagsSessionManagerTests).Assembly }
+                );
             featureFlagsSettings.ConnectionString = databaseFixture.ConnectionString;
             featureFlagsSettings.InitializationConnectionString = databaseFixture.ConnectionString;
 

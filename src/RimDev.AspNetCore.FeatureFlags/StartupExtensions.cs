@@ -70,11 +70,10 @@ namespace RimDev.AspNetCore.FeatureFlags
                     throw new Exception(
                         $"Failed to retrieve initialization connection string: {initializationConnectionString}");
 
-                return new FeatureFlagsSettings
+                return new FeatureFlagsSettings(featureFlagAssemblies)
                 {
                     ConnectionString = connectionString,
                     InitializationConnectionString = initializationConnectionString,
-                    FeatureFlagAssemblies = featureFlagAssemblies,
                 };
             });
 

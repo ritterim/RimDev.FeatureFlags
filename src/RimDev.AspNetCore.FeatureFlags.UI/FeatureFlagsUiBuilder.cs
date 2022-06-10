@@ -30,7 +30,7 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
                 return;
             }
 
-            var featureType = settings.FeatureFlagAssemblies.GetFeatureType(featureName);
+            var featureType = settings.GetFeatureType(featureName);
 
             if (featureType is null)
             {
@@ -70,7 +70,7 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
                     $"{nameof(FeatureFlagsSessionManager)} must be registered via {nameof(UiStartupExtensions.UseRimDevFeatureFlagsUi)}()");
 
             var features = new List<object>();
-            foreach (var featureType in settings.FeatureFlagAssemblies.GetFeatureTypes())
+            foreach (var featureType in settings.FeatureFlagTypes)
             {
                 var featureName = featureType.Name;
                 var enabled = await sessionManager.GetAsync(featureName);
@@ -121,7 +121,7 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
                 return;
             }
 
-            var featureType = settings.FeatureFlagAssemblies.GetFeatureType(setRequest.Name);
+            var featureType = settings.GetFeatureType(setRequest.Name);
 
             if (featureType is null)
             {
