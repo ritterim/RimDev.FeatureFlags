@@ -21,9 +21,9 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
 
         private async Task<FeatureFlagsSessionManager> CreateSut()
         {
-            var settings = new FeatureFlagsSettings();
-            settings.ConnectionString = databaseFixture.ConnectionString;
-            settings.InitializationConnectionString = databaseFixture.ConnectionString;
+            var featureFlagsSettings = new FeatureFlagsSettings();
+            featureFlagsSettings.ConnectionString = databaseFixture.ConnectionString;
+            featureFlagsSettings.InitializationConnectionString = databaseFixture.ConnectionString;
 
             var sqlSessionManagerSettings = new SQLServerSessionManagerSettings
             {
@@ -33,10 +33,11 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
 
             var sut = new FeatureFlagsSessionManager(
                 sqlSessionManagerSettings: sqlSessionManagerSettings,
-                cachedSqlSessionManagerSettings: cachedSqlSessionManagerSettings
+                cachedSqlSessionManagerSettings: cachedSqlSessionManagerSettings,
+                featureFlagsSettings: featureFlagsSettings
                 );
 
-            await sqlSessionManagerSettings.CreateDatabaseTableAsync(settings.InitializationConnectionString);
+            await sqlSessionManagerSettings.CreateDatabaseTableAsync(featureFlagsSettings.InitializationConnectionString);
 
             return sut;
         }

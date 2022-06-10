@@ -67,7 +67,7 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
 
             if (sessionManager == null)
                 throw new InvalidOperationException(
-                    $"{nameof(FeatureFlagsSessionManager)} must be registered via {nameof(UiStartupExtensions.UseFeatureFlagsUI)}()");
+                    $"{nameof(FeatureFlagsSessionManager)} must be registered via {nameof(UiStartupExtensions.UseRimDevFeatureFlagsUi)}()");
 
             var features = new List<object>();
             foreach (var featureType in settings.FeatureFlagAssemblies.GetFeatureTypes())

@@ -7,15 +7,18 @@ namespace RimDev.AspNetCore.FeatureFlags
 {
     public class FeatureFlagsSessionManager : ILussatiteSessionManager
     {
+        private readonly FeatureFlagsSettings featureFlagsSettings;
         private readonly CachedSqlSessionManager cachedSqlSessionManager;
 
         public FeatureFlagsSessionManager(
+            FeatureFlagsSettings featureFlagsSettings,
             SqlSessionManagerSettings sqlSessionManagerSettings,
             CachedSqlSessionManagerSettings cachedSqlSessionManagerSettings = null
             )
         {
             if (sqlSessionManagerSettings is null)
                 throw new ArgumentNullException(nameof(sqlSessionManagerSettings));
+            this.featureFlagsSettings = featureFlagsSettings;
             cachedSqlSessionManagerSettings ??= new CachedSqlSessionManagerSettings();
             cachedSqlSessionManager = new CachedSqlSessionManager(
                 cacheSettings: cachedSqlSessionManagerSettings,
@@ -31,5 +34,8 @@ namespace RimDev.AspNetCore.FeatureFlags
 
         public async Task SetNullableAsync(string featureName, bool? enabled) =>
             await cachedSqlSessionManager.SetNullableAsync(featureName, enabled);
+
+        public void CreateDatabaseTable() =>
+            cachedSqlSessionManager.Settings.CreateDatabaseTable(featureFlagsSettings.InitializationConnectionString);
     }
 }

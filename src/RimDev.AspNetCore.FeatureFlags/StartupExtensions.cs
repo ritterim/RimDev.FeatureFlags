@@ -13,22 +13,50 @@ namespace RimDev.AspNetCore.FeatureFlags
 {
     public static class StartupExtensions
     {
+        /// <summary><para>Register RimDev Feature Flags in the dependency system.</para>
+        /// <para>The <see cref="IFeatureManagerSnapshot"/> implementation must be registered in order to
+        /// construct individual <see cref="Feature"/> instances.</para>
+        /// </summary>
+        /// <param name="services"><see cref="IServiceCollection"/></param>
+        /// <param name="configuration"><see cref="IConfiguration"/></param>
+        /// <param name="featureFlagAssemblies">A list of assemblies to scan for classes inheriting from
+        /// <see cref="Feature"/>.</param>
+        /// <returns><see cref="IServiceCollection"/></returns>
+        /// <exception cref="Exception">When the connection strings are missing/empty.</exception>
+        public static IServiceCollection AddRimDevFeatureFlags(
+            this IServiceCollection services,
+            IConfiguration configuration,
+            ICollection<Assembly> featureFlagAssemblies
+            )
+        {
+            services.AddFeatureFlagSettings(
+                configuration,
+                featureFlagAssemblies: featureFlagAssemblies
+                );
+            services.AddStronglyTypedFeatureFlags(
+                featureFlagAssemblies: featureFlagAssemblies
+                );
+            services.AddFeatureFlagsSessionManager();
+
+            return services;
+        }
+
         /// <summary>Add <see cref="FeatureFlagsSettings"/> to the DI container.  The two
         /// connection strings are hardcoded as "featureFlags" and "featureFlagsInitialization".
         /// </summary>
-        /// <param name="service"><see cref="IServiceCollection"/></param>
+        /// <param name="services"><see cref="IServiceCollection"/></param>
         /// <param name="configuration"><see cref="IConfiguration"/></param>
         /// <param name="featureFlagAssemblies">A list of assemblies to scan for classes inheriting from
         /// <see cref="Feature"/>.</param>
         /// <returns><see cref="IServiceCollection"/></returns>
         /// <exception cref="Exception">When the connection strings are missing/empty.</exception>
         public static IServiceCollection AddFeatureFlagSettings(
-            this IServiceCollection service,
+            this IServiceCollection services,
             IConfiguration configuration,
             IEnumerable<Assembly> featureFlagAssemblies
             )
         {
-            service.AddScoped(services =>
+            services.AddScoped(serviceProvider =>
             {
                 const string connectionStringName = "featureFlags";
                 var connectionString = configuration.GetConnectionString(connectionStringName);
@@ -50,7 +78,7 @@ namespace RimDev.AspNetCore.FeatureFlags
                 };
             });
 
-            return service;
+            return services;
         }
 
         /// <summary>
@@ -58,8 +86,8 @@ namespace RimDev.AspNetCore.FeatureFlags
         /// <para>A <see cref="IFeatureManagerSnapshot"/> implementation must be registered in order to
         /// construct individual <see cref="Feature"/> instances.</para>
         /// </summary>
-        public static IServiceCollection AddFeatureFlags(
-            this IServiceCollection service,
+        public static IServiceCollection AddStronglyTypedFeatureFlags(
+            this IServiceCollection services,
             IEnumerable<Assembly> featureFlagAssemblies = null
             )
         {
@@ -67,51 +95,42 @@ namespace RimDev.AspNetCore.FeatureFlags
             var featureTypes = featureFlagAssemblies.GetFeatureTypesInAssemblies().ToList();
             foreach (var featureType in featureTypes)
             {
-                service.AddScoped(featureType, serviceProvider
+                services.AddScoped(featureType, serviceProvider
                     => serviceProvider.GetFeatureFromFeatureManager(featureType));
             }
 
-            return service;
+            return services;
         }
 
-        public static IServiceCollection AddSqlSessionManagerSettings(
-            this IServiceCollection service
+        public static IServiceCollection AddFeatureFlagsSessionManager(
+            this IServiceCollection services
             )
         {
-            service.AddScoped<SqlSessionManagerSettings>(services =>
+            services.AddScoped(serviceProvider =>
             {
-                var settings = services.GetRequiredService<FeatureFlagsSettings>();
-                return new SQLServerSessionManagerSettings
+                var featureFlagsSettings = serviceProvider.GetRequiredService<FeatureFlagsSettings>();
+
+                var cachedSqlSessionManagerSettings = new CachedSqlSessionManagerSettings();
+
+                var sqlSessionManagerSettings = new SQLServerSessionManagerSettings
                 {
                     FeatureSchemaName = "dbo",
                     FeatureTableName = "RimDevAspNetCoreFeatureFlags",
                     FeatureNameColumn = "FeatureName",
                     FeatureValueColumn = "Enabled",
-                    ConnectionString = settings.ConnectionString,
+                    ConnectionString = featureFlagsSettings.ConnectionString,
                     EnableSetValueCommand = false,
                 };
-            });
-
-            return service;
-        }
-
-        public static IServiceCollection AddFeatureFlagsSessionManager(
-            this IServiceCollection service
-            )
-        {
-            service.AddScoped(services =>
-            {
-                var cachedSqlSessionManagerSettings = services.GetService<CachedSqlSessionManagerSettings>();
-                var sqlSessionManagerSettings = services.GetRequiredService<SqlSessionManagerSettings>();
 
                 return new FeatureFlagsSessionManager
                 (
                     cachedSqlSessionManagerSettings: cachedSqlSessionManagerSettings,
-                    sqlSessionManagerSettings: sqlSessionManagerSettings
+                    sqlSessionManagerSettings: sqlSessionManagerSettings,
+                    featureFlagsSettings: featureFlagsSettings
                 );
             });
 
-            return service;
+            return services;
         }
 
         private static Feature GetFeatureFromFeatureManager(
@@ -138,28 +157,30 @@ namespace RimDev.AspNetCore.FeatureFlags
                 .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(Feature)));
         }
 
-        private static bool _sessionManagerInitialized;
-
-        /// <summary>Create the feature flags table (must be done via a defensive SQL script)
-        /// using <see cref="FeatureFlagsSettings"/> and <see cref="SqlSessionManagerSettings"/>
-        /// which must have been registered in DI.
-        /// </summary>
-        public static IApplicationBuilder CreateFeatureFlagsTable(
-            this IApplicationBuilder builder
+        public static IApplicationBuilder UseRimDevFeatureFlags(
+            this IApplicationBuilder app
             )
         {
-            if (_sessionManagerInitialized) return builder;
+            app.CreateFeatureFlagsTable();
+            return app;
+        }
 
-            var settings = builder
+        private static bool _sessionManagerInitialized;
+
+        /// <summary>Create the feature flags table (must be done via a defensive SQL script).</summary>
+        public static IApplicationBuilder CreateFeatureFlagsTable(
+            this IApplicationBuilder app
+            )
+        {
+            if (_sessionManagerInitialized) return app;
+
+            var sessionManager = app
                 .ApplicationServices
-                .GetRequiredService<FeatureFlagsSettings>();
-            var sqlSettings = builder
-                .ApplicationServices
-                .GetRequiredService<SqlSessionManagerSettings>();
-            sqlSettings.CreateDatabaseTable(settings.InitializationConnectionString);
+                .GetRequiredService<FeatureFlagsSessionManager>();
+            sessionManager.CreateDatabaseTable();
             _sessionManagerInitialized = true;
 
-            return builder;
+            return app;
         }
     }
 }

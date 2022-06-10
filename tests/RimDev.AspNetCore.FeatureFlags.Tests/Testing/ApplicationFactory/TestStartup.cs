@@ -17,20 +17,17 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests.Testing.ApplicationFactory
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddFeatureFlagSettings(
+            services.AddRimDevFeatureFlags(
                 configuration,
                 new[] { typeof(TestStartup).Assembly }
                 );
-            services.AddFeatureFlagUiSettings();
-            services.AddFeatureFlags();
-            services.AddSqlSessionManagerSettings();
-            services.AddFeatureFlagsSessionManager();
+            services.AddRimDevFeatureFlagsUi();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.CreateFeatureFlagsTable();
-            app.UseFeatureFlagsUI();
+            app.UseRimDevFeatureFlags();
+            app.UseRimDevFeatureFlagsUi();
         }
     }
 }

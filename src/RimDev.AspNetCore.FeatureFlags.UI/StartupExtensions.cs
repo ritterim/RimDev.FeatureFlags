@@ -4,7 +4,7 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
 {
     public static class StartupExtensions
     {
-        public static IServiceCollection AddFeatureFlagUiSettings(
+        public static IServiceCollection AddRimDevFeatureFlagsUi(
             this IServiceCollection service
             )
         {

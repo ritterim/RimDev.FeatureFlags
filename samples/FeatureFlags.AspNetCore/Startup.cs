@@ -19,14 +19,12 @@ namespace FeatureFlags.AspNetCore
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddFeatureFlagSettings(
+            services.AddRimDevFeatureFlags(
                 configuration,
                 new[] { typeof(Startup).Assembly }
-            );
-            services.AddFeatureFlagUiSettings();
-            services.AddFeatureFlags();
-            services.AddSqlSessionManagerSettings();
-            services.AddFeatureFlagsSessionManager();
+                );
+
+            services.AddRimDevFeatureFlagsUi();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -36,8 +34,8 @@ namespace FeatureFlags.AspNetCore
                 app.UseDeveloperExceptionPage();
             }
 
-            app.CreateFeatureFlagsTable();
-            app.UseFeatureFlagsUI();
+            app.UseRimDevFeatureFlags();
+            app.UseRimDevFeatureFlagsUi();
 
             app.UseRouting();
         }
