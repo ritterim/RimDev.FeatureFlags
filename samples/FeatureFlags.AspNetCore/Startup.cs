@@ -36,6 +36,7 @@ namespace FeatureFlags.AspNetCore
                 initializationConnectionString: featureFlagsInitializationConnectionString
                 );
 
+            // IFeatureManagerSnapshot should always be scoped / per-request lifetime
             services.AddScoped<IFeatureManagerSnapshot>(serviceProvider =>
             {
                 var featureFlagSessionManager = serviceProvider.GetRequiredService<FeatureFlagsSessionManager>();
@@ -44,7 +45,7 @@ namespace FeatureFlags.AspNetCore
                     featureFlagsSettings.FeatureFlagTypes.Select(x => x.Name).ToList(),
                     new []
                     {
-                        // in other use cases, you might list multiple
+                        // in other use cases, you might list multiple ISessionManager objects to have layers
                         featureFlagSessionManager
                     });
             });

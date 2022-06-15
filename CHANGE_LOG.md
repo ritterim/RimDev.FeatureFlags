@@ -12,7 +12,7 @@ The main package now only targets .NET Standard 2.0, with an additional package 
 
 ### Additions
 
-- `FeatureFlagUiSettings`: Is the new settings class for the UI project classes.  Some of these properties used to be in `FeatureFlagOptions`.
+- `FeatureFlagUiSettings`: Is the new settings class for the UI project classes.  Some of these properties used to live in `FeatureFlagOptions`.
 
 ### Changes
 
@@ -21,6 +21,7 @@ The main package now only targets .NET Standard 2.0, with an additional package 
 - Building a `Feature` object now looks at the registered `IFeatureManagementSnapshot` to obtain the value.
 - `FeatureSetRequest` is now `FeatureRequest` in the UI project.
 - The description for a `Feature` now comes from the `[Description(string)]` attribute on the class, not from an overridden property.
+- The "Value" property is now named "Enabled".
 
 ### Removed / Obsoleted
 
