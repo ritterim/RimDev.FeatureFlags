@@ -17,10 +17,18 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests.Testing.ApplicationFactory
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var featureFlagsConnectionString
+                = configuration.GetConnectionString("featureFlags");
+            var featureFlagsInitializationConnectionString
+                = configuration.GetConnectionString("featureFlagsInitialization");
+
             services.AddRimDevFeatureFlags(
                 configuration,
-                new[] { typeof(TestStartup).Assembly }
-                );
+                new[] { typeof(TestStartup).Assembly },
+                connectionString: featureFlagsConnectionString,
+                initializationConnectionString: featureFlagsInitializationConnectionString
+            );
+
             services.AddRimDevFeatureFlagsUi();
         }
 

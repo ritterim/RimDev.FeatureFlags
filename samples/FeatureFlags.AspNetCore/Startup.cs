@@ -24,9 +24,16 @@ namespace FeatureFlags.AspNetCore
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var featureFlagsConnectionString
+                = configuration.GetConnectionString("featureFlags");
+            var featureFlagsInitializationConnectionString
+                = configuration.GetConnectionString("featureFlagsInitialization");
+
             services.AddRimDevFeatureFlags(
                 configuration,
-                new[] { typeof(Startup).Assembly }
+                new[] { typeof(Startup).Assembly },
+                connectionString: featureFlagsConnectionString,
+                initializationConnectionString: featureFlagsInitializationConnectionString
                 );
 
             services.AddScoped<IFeatureManagerSnapshot>(serviceProvider =>
@@ -37,6 +44,7 @@ namespace FeatureFlags.AspNetCore
                     featureFlagsSettings.FeatureFlagTypes.Select(x => x.Name).ToList(),
                     new []
                     {
+                        // in other use cases, you might list multiple
                         featureFlagSessionManager
                     });
             });

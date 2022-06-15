@@ -20,17 +20,23 @@ namespace RimDev.AspNetCore.FeatureFlags
         /// <param name="configuration"><see cref="IConfiguration"/></param>
         /// <param name="featureFlagAssemblies">A list of assemblies to scan for classes inheriting from
         /// <see cref="Feature"/>.</param>
+        /// <param name="connectionString">Connection string for SELECT/INSERT/DELETE operations.</param>
+        /// <param name="initializationConnectionString">Connection string for the CREATE TABLE operation.</param>
         /// <returns><see cref="IServiceCollection"/></returns>
         /// <exception cref="Exception">When the connection strings are missing/empty.</exception>
         public static IServiceCollection AddRimDevFeatureFlags(
             this IServiceCollection services,
             IConfiguration configuration,
-            ICollection<Assembly> featureFlagAssemblies
+            ICollection<Assembly> featureFlagAssemblies,
+            string connectionString,
+            string initializationConnectionString
             )
         {
             services.AddFeatureFlagSettings(
                 configuration,
-                featureFlagAssemblies: featureFlagAssemblies
+                featureFlagAssemblies: featureFlagAssemblies,
+                connectionString: connectionString,
+                initializationConnectionString: initializationConnectionString
                 );
             services.AddStronglyTypedFeatureFlags(
                 featureFlagAssemblies: featureFlagAssemblies
@@ -47,27 +53,25 @@ namespace RimDev.AspNetCore.FeatureFlags
         /// <param name="configuration"><see cref="IConfiguration"/></param>
         /// <param name="featureFlagAssemblies">A list of assemblies to scan for classes inheriting from
         /// <see cref="Feature"/>.</param>
+        /// <param name="connectionString">Connection string for SELECT/INSERT/DELETE operations.</param>
+        /// <param name="initializationConnectionString">Connection string for the CREATE TABLE operation.</param>
         /// <returns><see cref="IServiceCollection"/></returns>
         /// <exception cref="Exception">When the connection strings are missing/empty.</exception>
         public static IServiceCollection AddFeatureFlagSettings(
             this IServiceCollection services,
             IConfiguration configuration,
-            IEnumerable<Assembly> featureFlagAssemblies
+            IEnumerable<Assembly> featureFlagAssemblies,
+            string connectionString,
+            string initializationConnectionString
             )
         {
             services.AddSingleton(serviceProvider =>
             {
-                const string connectionStringName = "featureFlags";
-                var connectionString = configuration.GetConnectionString(connectionStringName);
                 if (string.IsNullOrEmpty(connectionString))
-                    throw new Exception($"Failed to retrieve connection string: {connectionStringName}");
+                    throw new ArgumentNullException(nameof(connectionString));
 
-                const string initializationConnectionStringName = "featureFlagsInitialization";
-                var initializationConnectionString =
-                    configuration.GetConnectionString(initializationConnectionStringName);
-                if (string.IsNullOrEmpty(connectionString))
-                    throw new Exception(
-                        $"Failed to retrieve initialization connection string: {initializationConnectionString}");
+                if (string.IsNullOrEmpty(initializationConnectionString))
+                    throw new ArgumentNullException(nameof(initializationConnectionString));
 
                 return new FeatureFlagsSettings(featureFlagAssemblies)
                 {
