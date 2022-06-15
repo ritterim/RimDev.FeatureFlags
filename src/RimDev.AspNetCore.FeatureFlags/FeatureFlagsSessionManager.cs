@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using LazyCache;
 using Lussatite.FeatureManagement;
 using Lussatite.FeatureManagement.SessionManagers;
 
@@ -7,14 +8,15 @@ namespace RimDev.AspNetCore.FeatureFlags
 {
     public class FeatureFlagsSessionManager : ILussatiteSessionManager
     {
-        private readonly FeatureFlagsSettings featureFlagsSettings;
-        private readonly CachedSqlSessionManager cachedSqlSessionManager;
+        private readonly FeatureFlagsSettings _featureFlagsSettings;
+        private readonly CachedSqlSessionManager _cachedSqlSessionManager;
 
         public FeatureFlagsSessionManager(
-            FeatureFlagsSettings featureFlagsSettings
+            FeatureFlagsSettings featureFlagsSettings,
+            IAppCache appCache = null
             )
         {
-            this.featureFlagsSettings = featureFlagsSettings
+            _featureFlagsSettings = featureFlagsSettings
                 ?? throw new ArgumentNullException(nameof(featureFlagsSettings));
 
             var cachedSqlSessionManagerSettings = new CachedSqlSessionManagerSettings
@@ -22,19 +24,20 @@ namespace RimDev.AspNetCore.FeatureFlags
                 CacheTime = featureFlagsSettings.CacheTime,
             };
 
-            cachedSqlSessionManager = new CachedSqlSessionManager(
+            _cachedSqlSessionManager = new CachedSqlSessionManager(
                 cacheSettings: cachedSqlSessionManagerSettings,
-                settings: featureFlagsSettings.SqlSessionManagerSettings
+                settings: featureFlagsSettings.SqlSessionManagerSettings,
+                appCache: appCache
                 );
         }
 
         public async Task SetAsync(string featureName, bool enabled) =>
-            await cachedSqlSessionManager.SetAsync(featureName, enabled).ConfigureAwait(false);
+            await _cachedSqlSessionManager.SetAsync(featureName, enabled).ConfigureAwait(false);
 
         public async Task<bool?> GetAsync(string featureName) =>
-            await cachedSqlSessionManager.GetAsync(featureName);
+            await _cachedSqlSessionManager.GetAsync(featureName);
 
         public async Task SetNullableAsync(string featureName, bool? enabled) =>
-            await cachedSqlSessionManager.SetNullableAsync(featureName, enabled);
+            await _cachedSqlSessionManager.SetNullableAsync(featureName, enabled);
     }
 }

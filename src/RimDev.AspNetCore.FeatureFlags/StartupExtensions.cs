@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using LazyCache;
 using Lussatite.FeatureManagement.SessionManagers.SqlClient;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -120,10 +121,12 @@ namespace RimDev.AspNetCore.FeatureFlags
             services.AddSingleton(serviceProvider =>
             {
                 var featureFlagsSettings = serviceProvider.GetRequiredService<FeatureFlagsSettings>();
+                var appCache = serviceProvider.GetService<IAppCache>();
 
                 return new FeatureFlagsSessionManager
                 (
-                    featureFlagsSettings: featureFlagsSettings
+                    featureFlagsSettings: featureFlagsSettings,
+                    appCache: appCache
                 );
             });
 
