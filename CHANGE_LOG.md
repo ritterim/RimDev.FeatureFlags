@@ -4,11 +4,11 @@
 
 Major rewrite to move to using the `IFeatureManagerSnapshot` and `ISessionManager` interfaces from [Microsoft.FeatureManagement](https://www.nuget.org/packages/Microsoft.FeatureManagement/).  This will allow layering of `ISessionManager` implementations to give flexibility in how the feature value is calculated.
 
-Under RimDev.FeatureFlags v2 you were limited to only looking at a sole database table for values.  With RimDev.FeatureFlags v3, you can allow per-user feature flag values to override per-application values; or some other desired layering.  You can mix and match any set of value providers that implement the `ISessionManager` interface when constructing the `IFeatureManagerSnapshot` object in a Dependency Injection container.
+Under RimDev.FeatureFlags v2 you were limited to only looking at a single database table for values.  With RimDev.FeatureFlags v3, you can allow per-user feature flag values to override per-application values; or some other desired layering.  You can mix and match any set of value providers which implement the `ISessionManager` interface when constructing the `IFeatureManagerSnapshot` object in a Dependency Injection container.
 
-You can also choose to use any reasonable implementation of `IFeatureManagerSnapshot` instead of [Microsoft.FeatureManagement](https://www.nuget.org/packages/Microsoft.FeatureManagement/) if you don't need the advanced features that the Microsoft implementation provides.
+You can also choose to use any reasonable implementation of `IFeatureManagerSnapshot` instead of [Microsoft.FeatureManagement](https://www.nuget.org/packages/Microsoft.FeatureManagement/) if you don't need the advanced features that the Microsoft implementation provides.  The out of the box experience uses [Lussatite.FeatureManagement](https://www.nuget.org/packages/Lussatite.FeatureManagement) which is a light implementation which allows layering of session managers.
 
-The main package now only targets .NET Standard 2.0, with an additional package (RimDev.AspNetCore.FeatureFlags.UI) added to provide the pre-built .NET Core 3.1+ / .NET 5+ web UI.
+The main package now targets .NET Standard 2.0, with an additional package (RimDev.AspNetCore.FeatureFlags.UI) added to provide the pre-built .NET Core 3.1+ / .NET 5+ web UI.
 
 ### Additions
 
@@ -22,11 +22,12 @@ The main package now only targets .NET Standard 2.0, with an additional package 
 - `FeatureSetRequest` is now `FeatureRequest` in the UI project.
 - The description for a `Feature` now comes from the `[Description(string)]` attribute on the class, not from an overridden property.
 - The "Value" property is now named "Enabled".
+- Use of LazyCache `IAppCache` where appropriate.
 
 ### Removed / Obsoleted
 
 - `Feature.ServiceLifetime` property.  All feature objects are constructed as `Scoped` lifetime.
-- Some properties in `FeatureFlagOptions` related to the user-interface / API.  See `FeatureFlagUiSettings`
+- Some properties in `FeatureFlagOptions` related to the user-interface / API.  They have been moved to `FeatureFlagUiSettings`.
 - Classes: `CachedSqlFeatureProvider`, `FeatureFlags`, `FeatureFlagsBuilder`, and `InMemoryFeatureProvider` have all been removed.
 - Interfaces: `IFeatureProvider` has been removed.
 
