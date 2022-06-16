@@ -61,8 +61,10 @@ namespace FeatureFlags.AspNetCore
             }
 
             app.UseRimDevFeatureFlags();
+            app.UseRimDevFeatureFlagsUi();
 
             app.UseRouting();
+
             app.UseEndpoints(endpoints =>
             {
                 var featureFlagUiSettings = app.ApplicationServices.GetService<FeatureFlagUiSettings>();
