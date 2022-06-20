@@ -39,7 +39,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
 
             response.EnsureSuccessStatusCode();
 
-            var feature = await response.Content.ReadAsJson<TestFeature>();
+            var feature = await response.Content.ReadAsJson<FeatureResponse>();
 
             Assert.True(feature.Enabled);
             Assert.Equal(nameof(TestFeature), feature.Name);
