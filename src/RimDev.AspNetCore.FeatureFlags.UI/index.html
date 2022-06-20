@@ -20,17 +20,14 @@
     }
   </style>
 </head>
-<body>
-<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
-  <header class="mdl-layout__header">
-    <div class="mdl-layout__header-row">
-      <i class="material-icons">flag</i>
-      <span class="mdl-layout-title">Feature Flags</span>
-    </div>
+<body class="flex flex--column">
+  <header class="site-header site-header--fixed background--navy inverted">
+    <i class="pi-flag"></i>
+    <span class="mdl-layout-title">Feature Flags</span>
   </header>
-  <main class="mdl-layout__content">
+  <main class="header-fixed flex--grow">
     <div class="page-content">
-      <ul id="features" class='mdl-list'>
+      <ul id="features-list" class='list'>
       </ul>
     </div>
   </main>
@@ -53,6 +50,5 @@
       d.getElementsByTagName('head')[0].appendChild(script);
     }(document));
   </script>
-</div>
 </body>
 </html>

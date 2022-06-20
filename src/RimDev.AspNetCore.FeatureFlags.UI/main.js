@@ -1,4 +1,4 @@
-const featuresContainer = document.querySelector('#features');
+const featuresContainer = document.querySelector('#features-list');
 const notificationsContainer = document.querySelector('#notifications-container');
 
 const fetchOptions = {
@@ -8,13 +8,17 @@ const fetchOptions = {
 fetch('/_features/get_all', fetchOptions)
   .then(res => res.json())
   .then(json => {
-    const features = json.map(feature => `<li class="mdl-list__item mdl-list__item--three-line">
-      <span class="mdl-list__item-primary-content">
-        <i class="material-icons mdl-list__item-avatar">outlined_flag</i>
-        <span>${feature.name}</span>
-        ${feature.description ? '<span class="mdl-list__item-text-body">' + feature.description + '</span>' : ''}
-      </span>
-      <span class="mdl-list__item-secondary-content">
+    const features = json.map(feature => `<li class="block-container w-100">
+      <div class="block block-6 flex">
+        <div class="flex flex--align-center">
+          <div class="flex--center-content p-3 background--light inverted pill--circle-large">
+            <i class="pi-flag"></i>
+          </div>
+          <p>${feature.name}</p>
+        </div>
+        <p>${feature.description ? '<span class="mdl-list__item-text-body">' + feature.description + '</span>' : ''}</p>
+      </div>
+      <div class="block block-6">
         <fieldset class="mdl-list__item-secondary-action" id="">
           <legend class="hidden">Set the flag</legend>
           <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="${feature.name}-null">
@@ -30,7 +34,7 @@ fetch('/_features/get_all', fetchOptions)
             <span class="mdl-radio__label">True</span>
           </label>
         </fieldset>
-      </span>
+      </div>
     </li>`);
 
     featuresContainer.innerHTML = DOMPurify.sanitize(features.join(''));
@@ -53,21 +57,27 @@ fetch('/_features/get_all', fetchOptions)
           headers: { 'Content-Type': 'application/json' },
           ...fetchOptions
         }).then(() => {
-          notificationsContainer.MaterialSnackbar.showSnackbar({
-            message: `${feature} set to ${checked}`
-          });
+          let message = `${feature} set to ${checked}`
+          alert(message);
+          // notificationsContainer.MaterialSnackbar.showSnackbar({
+          //   message: `${feature} set to ${checked}`
+          // });
         }).catch(err => {
           const toggle = document.getElementById(feature).parentElement;
+          let message = `ERROR: ${err}`
+          alert(message);
 
-          notificationsContainer.MaterialSnackbar.showSnackbar({
-            message: `ERROR: ${err}`
-          });
+          // notificationsContainer.MaterialSnackbar.showSnackbar({
+          //   message: `ERROR: ${err}`
+          // });
         });
       });
     });
   })
   .catch(err => {
-    notificationsContainer.MaterialSnackbar.showSnackbar({
-      message: `ERROR: ${err}`
-    });
+    let message = `ERROR: ${err}`
+    alert(message);
+    // notificationsContainer.MaterialSnackbar.showSnackbar({
+    //   message: `ERROR: ${err}`
+    // });
   });
