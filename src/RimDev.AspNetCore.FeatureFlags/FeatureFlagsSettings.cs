@@ -10,7 +10,7 @@ namespace RimDev.AspNetCore.FeatureFlags
     {
         public FeatureFlagsSettings(IEnumerable<Assembly> featureFlagAssemblies)
         {
-            FeatureFlagTypes = featureFlagAssemblies.GetFeatureTypes().ToList();
+            FeatureFlagTypes = featureFlagAssemblies.GetFeatureTypesInAssemblies().ToList();
         }
 
         /// <summary>A SQL connection string which can be used to SELECT/INSERT/UPDATE

@@ -7,7 +7,7 @@ namespace RimDev.AspNetCore.FeatureFlags
 {
     public static class IEnumerableExtensions
     {
-        public static IEnumerable<Type> GetFeatureTypes(
+        public static IEnumerable<Type> GetFeatureTypesInAssemblies(
             this IEnumerable<Assembly> featureFlagAssemblies
             )
         {

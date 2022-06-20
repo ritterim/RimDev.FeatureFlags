@@ -104,7 +104,7 @@ namespace RimDev.AspNetCore.FeatureFlags
             )
         {
             featureFlagAssemblies ??= new List<Assembly>();
-            var featureTypes = featureFlagAssemblies.GetFeatureTypesInAssemblies().ToList();
+            var featureTypes = GetFeatureTypesInAssemblies(featureFlagAssemblies).ToList();
             foreach (var featureType in featureTypes)
             {
                 services.AddScoped(featureType, serviceProvider
@@ -147,14 +147,6 @@ namespace RimDev.AspNetCore.FeatureFlags
                 ?? throw new Exception($"Unable to create instance of {featureType.Name}.");
             feature.Enabled = value;
             return feature;
-        }
-
-        private static IEnumerable<Type> GetFeatureTypesInAssemblies(
-            this IEnumerable<Assembly> featureFlagAssemblies)
-        {
-            return featureFlagAssemblies
-                .SelectMany(assembly => assembly.GetTypes())
-                .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(Feature)));
         }
 
         public static IApplicationBuilder UseRimDevFeatureFlags(
