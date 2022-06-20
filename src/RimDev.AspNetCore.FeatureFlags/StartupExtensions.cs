@@ -104,7 +104,7 @@ namespace RimDev.AspNetCore.FeatureFlags
             )
         {
             featureFlagAssemblies ??= new List<Assembly>();
-            var featureTypes = GetFeatureTypesInAssemblies(featureFlagAssemblies).ToList();
+            var featureTypes = featureFlagAssemblies.GetFeatureTypesInAssemblies().ToList();
             foreach (var featureType in featureTypes)
             {
                 services.AddScoped(featureType, serviceProvider
