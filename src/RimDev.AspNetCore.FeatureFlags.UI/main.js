@@ -44,9 +44,6 @@ fetch('/_features/get_all', fetchOptions)
         const feature = evt.currentTarget.getAttribute('data-feature');
         const checked = evt.currentTarget.getAttribute('data-checked');
 
-        console.log(checked);
-        console.log(feature);
-
         fetch('/_features/set', {
           method: 'POST',
           body: JSON.stringify({
