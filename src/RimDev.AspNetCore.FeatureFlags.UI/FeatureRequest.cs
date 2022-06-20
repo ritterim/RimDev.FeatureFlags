@@ -17,6 +17,7 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
         public bool Value { get; set; }
 
         [JsonProperty("enabled")]
+        [JsonConverter(typeof(JsonBooleanConverter))]
         public bool? Enabled { get; set; }
     }
 }
