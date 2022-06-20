@@ -15,24 +15,37 @@ fetch('/_features/get_all', fetchOptions)
         ${feature.description ? '<span class="mdl-list__item-text-body">' + feature.description + '</span>' : ''}
       </span>
       <span class="mdl-list__item-secondary-content">
-        <a class="mdl-list__item-secondary-action" href="#">
-          <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="${feature.name}">
-            <input type="checkbox" id="${feature.name}" class="mdl-switch__input"${feature.enabled ? " checked" : ""} />
+        <fieldset class="mdl-list__item-secondary-action" id="">
+          <legend class="hidden">Set the flag</legend>
+          <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="${feature.name}-null">
+            <input type="radio" id="${feature.name}-null" class="mdl-radio__button" data-feature="${feature.name}" data-checked="null" name="${feature.name}" value="1" ${feature.enabled == null ? " checked" : ""}>
+            <span class="mdl-radio__label">Null</span>
           </label>
-        </a>
+          <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="${feature.name}-false">
+            <input type="radio" id="${feature.name}-false" class="mdl-radio__button" data-feature="${feature.name}" data-checked="false" name="${feature.name}" value="1" ${feature.enabled == false ? " checked" : ""}>
+            <span class="mdl-radio__label">False</span>
+          </label>
+          <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="${feature.name}-true">
+            <input type="radio" id="${feature.name}-true" class="mdl-radio__button" data-feature="${feature.name}" data-checked="true" name="${feature.name}" value="1" ${feature.enabled == true ? " checked" : ""}>
+            <span class="mdl-radio__label">True</span>
+          </label>
+        </fieldset>
       </span>
     </li>`);
 
     featuresContainer.innerHTML = DOMPurify.sanitize(features.join(''));
 
-    [...featuresContainer.getElementsByClassName('mdl-switch')].forEach(toggle => {
+    [...featuresContainer.getElementsByClassName('mdl-js-radio')].forEach(toggle => {
       componentHandler.upgradeElement(toggle);
     });
 
-    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-      checkbox.addEventListener('change', evt => {
-        const feature = evt.currentTarget.id;
-        const checked = evt.currentTarget.checked;
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+      radio.addEventListener('change', evt => {
+        const feature = evt.currentTarget.getAttribute('data-feature');
+        const checked = evt.currentTarget.getAttribute('data-checked');
+
+        console.log(checked);
+        console.log(feature);
 
         fetch('/_features/set', {
           method: 'POST',
@@ -48,12 +61,6 @@ fetch('/_features/get_all', fetchOptions)
           });
         }).catch(err => {
           const toggle = document.getElementById(feature).parentElement;
-
-          if (checked) {
-            toggle.MaterialSwitch.off();
-          } else {
-            toggle.MaterialSwitch.on();
-          }
 
           notificationsContainer.MaterialSnackbar.showSnackbar({
             message: `ERROR: ${err}`
