@@ -54,8 +54,8 @@ fetch('/_features/get_all', fetchOptions)
     const features = json.map(feature => `<li class="block-container w-100">
       <div class="block block-6">
         <div class="flex flex--align-center">
-          <div class="flex--center-content p-3 background--light inverted pill--circle-large">
-            <i class="pi-flag"></i>
+          <div class="flex--center-content p-3 mr-2 background--light inverted pill--circle-large">
+            <i class="pi-flag pi-xl"></i>
           </div>
           <div>
             <strong>${feature.name}</strong>
@@ -63,7 +63,7 @@ fetch('/_features/get_all', fetchOptions)
           </div>
         </div>
       </div>
-      <div class="block block-6">
+      <div class="block block-6 flex flex--align-center">
         <fieldset class="mdl-list__item-secondary-action" id="">
           <legend class="hidden">Set the flag</legend>
           <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="${feature.name}-null">
