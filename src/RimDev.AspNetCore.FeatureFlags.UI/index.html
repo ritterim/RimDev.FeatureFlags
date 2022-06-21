@@ -31,9 +31,12 @@
       </ul>
     </div>
   </main>
-  <div id="notifications-container" class="mdl-js-snackbar mdl-snackbar">
-    <div id="notification-text" class="mdl-snackbar__text"></div>
-    <button class="mdl-snackbar__action" type="button"></button>
+  <div id="notifications-container" class="flex flex--justify-center pos-fix w-100 m-0 js-message-container" style="bottom: -100%;transition: all ease-in-out .3s; --max-container: 600px">
+    <div class="max-container">
+      <div class="message m-0 js-message">
+        <p id="notification-text" class="js-message-text"></p>
+      </div>
+    </div>
   </div>
 
   <script src="https://unpkg.com/@ritterim/platform-ui/dist/js/platform-ui.min.js" crossorigin defer></script>
