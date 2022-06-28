@@ -1,6 +1,6 @@
 # RimDev.FeatureFlags Change Log
 
-## v3.0 May/June 2022
+## v3.0 May-July 2022
 
 Major rewrite to move to using the `IFeatureManagerSnapshot` and `ISessionManager` interfaces from [Microsoft.FeatureManagement](https://www.nuget.org/packages/Microsoft.FeatureManagement/).  This will allow layering of `ISessionManager` implementations to give flexibility in how the feature value is calculated.
 
@@ -8,7 +8,7 @@ Under RimDev.FeatureFlags v2 you were limited to only looking at a single databa
 
 You can also choose to use any reasonable implementation of `IFeatureManagerSnapshot` instead of [Microsoft.FeatureManagement](https://www.nuget.org/packages/Microsoft.FeatureManagement/) if you don't need the advanced features that the Microsoft implementation provides.  The out of the box experience uses [Lussatite.FeatureManagement](https://www.nuget.org/packages/Lussatite.FeatureManagement) which is a light implementation which allows layering of session managers.
 
-The main package now targets .NET Standard 2.0, with an additional package (RimDev.AspNetCore.FeatureFlags.UI) added to provide the pre-built .NET Core 3.1+ / .NET 5+ web UI.
+The main package now targets .NET Standard 2.0, with an additional package (RimDev.AspNetCore.FeatureFlags.UI) added to provide the pre-built .NET Core 3.1+ / .NET 5+ web UI and API.
 
 ### Additions
 
