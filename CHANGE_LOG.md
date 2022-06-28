@@ -17,7 +17,7 @@ The main package now targets .NET Standard 2.0, with an additional package (RimD
 ### Changes
 
 - All UI-related classes / methods have been moved to the UI package.
-- The default ServiceLifetime for a Feature is now `Scoped` instead of `Transient`.  There is no longer a way to set the service lifetime.  This may be revisited in the future with a custom attribute on the class that inherits from the `Feature` abstract class.
+- The default ServiceLifetime for a Feature is now `Scoped` instead of `Transient`.  There is no longer a way to set the service lifetime.
 - Building a `Feature` object now looks at the registered `IFeatureManagementSnapshot` to obtain the value.
 - `FeatureSetRequest` is now `FeatureRequest` in the UI project.
 - The description for a `Feature` now comes from the `[Description(string)]` attribute on the class, not from an overridden property.
