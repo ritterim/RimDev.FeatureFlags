@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.FeatureManagement;
 using RimDev.AspNetCore.FeatureFlags;
+using RimDev.AspNetCore.FeatureFlags.Core;
 using RimDev.AspNetCore.FeatureFlags.UI;
 
 namespace FeatureFlags.AspNetCore
