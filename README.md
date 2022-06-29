@@ -11,7 +11,7 @@ A library for strongly typed feature flags in ASP.NET Core.
 
 ## Installation
 
-Install the [RimDev.AspNetCore.FeatureFlags][NuGet link] and (optional) [RimDev.AspNetCore.FeatureFlags.UI][NuGet UI link] NuGet packages.
+Install the [RimDev.AspNetCore.FeatureFlags](https://www.nuget.org/packages/RimDev.AspNetCore.FeatureFlags) and (optional) [RimDev.AspNetCore.FeatureFlags.UI](https://www.nuget.org/packages/RimDev.AspNetCore.FeatureFlags.UI) NuGet packages.
 
 ```
 > dotnet add package RimDev.AspNetCore.FeatureFlags
