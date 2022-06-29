@@ -16,10 +16,10 @@ $ENV:UseMasterReleaseStrategy = "true"
 #$ENV:RIMDEVTESTS__ELASTICSEARCH__TRANSPORTPORT = "9306"
 
 # The following variables should be set if unit tests need the SQL Docker container created
-#$ENV:RIMDEV_CREATE_TEST_DOCKER_SQL = "true"
-#$ENV:RIMDEVTESTS__SQL__HOSTNAME = "localhost"
-#$ENV:RIMDEVTESTS__SQL__PORT = "11439"
-#$ENV:RIMDEVTESTS__SQL__PASSWORD = "ZjKj4yjPaUo5"
+$ENV:RIMDEV_CREATE_TEST_DOCKER_SQL = "true"
+$ENV:RIMDEVTESTS__SQL__HOSTNAME = "localhost"
+$ENV:RIMDEVTESTS__SQL__PORT = "11439"
+$ENV:RIMDEVTESTS__SQL__PASSWORD = "HbXCXv4qJAWhliA"
 
 try {
   Invoke-WebRequest https://raw.githubusercontent.com/ritterim/build-scripts/master/bootstrap-cake.ps1 -OutFile build\bootstrap-cake.ps1

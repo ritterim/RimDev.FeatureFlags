@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
 
-    <Description>A library for strongly typed feature flags in ASP.NET Core 3.1.</Description>
+    <Description>A library for strongly typed feature flags in .NET Standard 2.0.</Description>
     <Authors>Ritter Insurance Marketing</Authors>
     <Copyright>Copyright 2019-2022 Ritter Insurance Marketing</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -20,6 +20,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Lussatite.FeatureManagement" Version="1.6.2" />
+    <PackageReference Include="Lussatite.FeatureManagement.SessionManagers" Version="1.6.2" />
+    <PackageReference Include="Lussatite.FeatureManagement.SessionManagers.SqlClient" Version="1.6.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
     
@@ -29,18 +32,8 @@
   
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.2.0" />
-  </ItemGroup>
-
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="index.html" />
-    <EmbeddedResource Include="main.js" />
   </ItemGroup>
 
 </Project>

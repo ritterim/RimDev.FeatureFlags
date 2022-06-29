@@ -1,11 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\RimDev.AspNetCore.FeatureFlags.UI\RimDev.AspNetCore.FeatureFlags.UI.csproj" />
     <ProjectReference Include="..\..\src\RimDev.AspNetCore.FeatureFlags\RimDev.AspNetCore.FeatureFlags.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
   </ItemGroup>
 
 </Project>

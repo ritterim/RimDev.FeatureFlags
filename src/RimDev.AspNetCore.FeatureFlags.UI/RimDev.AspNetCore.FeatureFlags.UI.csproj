@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+
+    <Description>A user interface for strongly typed feature flags in ASP.NET Core 3.1.</Description>
+    <Authors>Ritter Insurance Marketing</Authors>
+    <Copyright>Copyright 2019-2022 Ritter Insurance Marketing</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+    <PackageId>RimDev.AspNetCore.FeatureFlags.UI</PackageId>
+    <PackageProjectUrl>https://github.com/ritterim/RimDev.FeatureFlags</PackageProjectUrl>
+    <PackageTags>feature flags FeatureFlag FeatureFlags</PackageTags>
+
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>    
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="index.html" />
+    <EmbeddedResource Include="main.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RimDev.AspNetCore.FeatureFlags\RimDev.AspNetCore.FeatureFlags.csproj" />
+  </ItemGroup>  
+  
+</Project>

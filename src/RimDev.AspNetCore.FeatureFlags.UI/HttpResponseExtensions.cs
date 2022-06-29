@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.Http;
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
-namespace RimDev.AspNetCore.FeatureFlags
+namespace RimDev.AspNetCore.FeatureFlags.UI
 {
     internal static class HttpResponseExtensions
     {

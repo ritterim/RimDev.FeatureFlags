@@ -1,32 +1,56 @@
+using System.Linq;
+using System.Threading.Tasks;
+using Lussatite.FeatureManagement;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.FeatureManagement;
 using RimDev.AspNetCore.FeatureFlags;
-using System.Threading.Tasks;
+using RimDev.AspNetCore.FeatureFlags.UI;
 
 namespace FeatureFlags.AspNetCore
 {
     public class Startup
     {
-        private readonly FeatureFlagOptions options;
-
-        public IConfiguration Configuration { get; }
+        private readonly IConfiguration configuration;
 
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
-
-            options = new FeatureFlagOptions()
-                .UseInMemoryFeatureProvider();
-                // .UseCachedSqlFeatureProvider(Configuration.GetConnectionString("localDb"));
+            this.configuration = configuration;
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddFeatureFlags(options);
+            var featureFlagsConnectionString
+                = configuration.GetConnectionString("featureFlags");
+            var featureFlagsInitializationConnectionString
+                = configuration.GetConnectionString("featureFlagsInitialization");
+
+            services.AddRimDevFeatureFlags(
+                configuration,
+                new[] { typeof(Startup).Assembly },
+                connectionString: featureFlagsConnectionString,
+                initializationConnectionString: featureFlagsInitializationConnectionString
+                );
+
+            // IFeatureManagerSnapshot should always be scoped / per-request lifetime
+            services.AddScoped<IFeatureManagerSnapshot>(serviceProvider =>
+            {
+                var featureFlagSessionManager = serviceProvider.GetRequiredService<FeatureFlagsSessionManager>();
+                var featureFlagsSettings = serviceProvider.GetRequiredService<FeatureFlagsSettings>();
+                return new LussatiteLazyCacheFeatureManager(
+                    featureFlagsSettings.FeatureFlagTypes.Select(x => x.Name).ToList(),
+                    new []
+                    {
+                        // in other use cases, you might list multiple ISessionManager objects to have layers
+                        featureFlagSessionManager
+                    });
+            });
+
+            services.AddRimDevFeatureFlagsUI();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -36,13 +60,15 @@ namespace FeatureFlags.AspNetCore
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseFeatureFlags(options);
-            //app.UseFeatureFlagsUI(options);
+            app.UseRimDevFeatureFlags();
+            app.UseRimDevFeatureFlagsUI();
 
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
+                var featureFlagUISettings = app.ApplicationServices.GetService<FeatureFlagUISettings>();
+
                 endpoints.Map("/test-features", async context =>
                 {
                     var testFeature = context.RequestServices.GetService<TestFeature>();
@@ -51,10 +77,10 @@ namespace FeatureFlags.AspNetCore
 
                     context.Response.ContentType = "text/html";
                     await context.Response.WriteAsync($@"
-                    {testFeature.GetType().Name}: {testFeature.Value}<br />
-                    {testFeature2.GetType().Name}: {testFeature2.Value}<br />
-                    {testFeature3.GetType().Name}: {testFeature3.Value}<br />
-                    <a href=""{options.UiPath}"">View UI</a>");
+                    {testFeature.GetType().Name}: {testFeature.Enabled}<br />
+                    {testFeature2.GetType().Name}: {testFeature2.Enabled}<br />
+                    {testFeature3.GetType().Name}: {testFeature3.Enabled}<br />
+                    <a href=""{featureFlagUISettings.UIPath}"">View UI</a>");
                 });
 
                 endpoints.Map("", context =>
@@ -64,7 +90,11 @@ namespace FeatureFlags.AspNetCore
                     return Task.CompletedTask;
                 });
 
-                endpoints.MapFeatureFlagsUI(options);
+                var featureFlagsSettings = app.ApplicationServices.GetRequiredService<FeatureFlagsSettings>();
+                endpoints.MapFeatureFlagsUI(
+                    uiSettings: featureFlagUISettings,
+                    settings: featureFlagsSettings
+                    );
             });
         }
     }
