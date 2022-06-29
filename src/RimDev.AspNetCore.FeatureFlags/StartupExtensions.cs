@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using LazyCache;
 using Lussatite.FeatureManagement.SessionManagers.SqlClient;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.FeatureManagement;
@@ -103,7 +102,7 @@ namespace RimDev.AspNetCore.FeatureFlags
             IEnumerable<Assembly> featureFlagAssemblies = null
             )
         {
-            featureFlagAssemblies ??= new List<Assembly>();
+            featureFlagAssemblies = featureFlagAssemblies ?? new List<Assembly>();
             var featureTypes = featureFlagAssemblies.GetFeatureTypesInAssemblies().ToList();
             foreach (var featureType in featureTypes)
             {
@@ -149,32 +148,5 @@ namespace RimDev.AspNetCore.FeatureFlags
             return feature;
         }
 
-        public static IApplicationBuilder UseRimDevFeatureFlags(
-            this IApplicationBuilder app
-            )
-        {
-            app.CreateFeatureFlagsTable();
-            return app;
-        }
-
-        private static bool _sessionManagerInitialized;
-
-        /// <summary>Create the feature flags table (must be done via a defensive SQL script).</summary>
-        public static IApplicationBuilder CreateFeatureFlagsTable(
-            this IApplicationBuilder app
-            )
-        {
-            if (_sessionManagerInitialized) return app;
-
-            var featureFlagsSettings = app
-                .ApplicationServices
-                .GetRequiredService<FeatureFlagsSettings>();
-            featureFlagsSettings.SqlSessionManagerSettings.CreateDatabaseTable(
-                featureFlagsSettings.InitializationConnectionString
-                );
-            _sessionManagerInitialized = true;
-
-            return app;
-        }
     }
 }

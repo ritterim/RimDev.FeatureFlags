@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using RimDev.AspNetCore.FeatureFlags.Core;
 using RimDev.AspNetCore.FeatureFlags.UI;
 
 namespace RimDev.AspNetCore.FeatureFlags.Tests.Testing.ApplicationFactory
