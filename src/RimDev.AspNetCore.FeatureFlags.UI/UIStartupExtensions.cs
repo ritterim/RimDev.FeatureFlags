@@ -5,18 +5,18 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace RimDev.AspNetCore.FeatureFlags.UI
 {
-    public static class UiStartupExtensions
+    public static class UIStartupExtensions
     {
-        public static IServiceCollection AddRimDevFeatureFlagsUi(
+        public static IServiceCollection AddRimDevFeatureFlagsUI(
             this IServiceCollection service
             )
         {
-            service.AddSingleton<FeatureFlagUiSettings>();
+            service.AddSingleton<FeatureFlagUISettings>();
             return service;
         }
 
         /// <summary>
-        /// <para>Uses <see cref="FeatureFlagsUiBuilder"/> to construct the default UI and API endpoints for feature
+        /// <para>Uses <see cref="FeatureFlagsUIBuilder"/> to construct the default UI and API endpoints for feature
         /// flags toggles.</para>
         /// <para>Note that if you layer session managers, the value retrieved for a particular feature
         /// may not match what is shown in this UI.  This UI/API only displays/updates the values for the
@@ -25,34 +25,34 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
         /// Apply authentication / authorization around the `UseFeatureFlagsUI` method as needed, as this method
         /// simply wires up the various endpoints.</para>
         /// </summary>
-        public static IApplicationBuilder UseRimDevFeatureFlagsUi(
+        public static IApplicationBuilder UseRimDevFeatureFlagsUI(
             this IApplicationBuilder app
             )
         {
             var settings = app.ApplicationServices.GetRequiredService<FeatureFlagsSettings>();
-            var uiSettings = app.ApplicationServices.GetRequiredService<FeatureFlagUiSettings>();
+            var uiSettings = app.ApplicationServices.GetRequiredService<FeatureFlagUISettings>();
 
-            var featureFlagsUiBuilder = new FeatureFlagsUiBuilder();
+            var featureFlagsUIBuilder = new FeatureFlagsUIBuilder();
 
             app.Map(uiSettings.ApiGetPath, appBuilder =>
             {
-                appBuilder.Run(context => featureFlagsUiBuilder.ApiGetPath(context, settings));
+                appBuilder.Run(context => featureFlagsUIBuilder.ApiGetPath(context, settings));
             });
 
             app.Map(uiSettings.ApiGetAllPath, appBuilder =>
             {
-                appBuilder.Run(context => featureFlagsUiBuilder.ApiGetAllPath(context, settings));
+                appBuilder.Run(context => featureFlagsUIBuilder.ApiGetAllPath(context, settings));
             });
 
             app.Map(uiSettings.ApiSetPath, appBuilder =>
             {
-                appBuilder.Run(context => featureFlagsUiBuilder.ApiSetPath(context, settings));
+                appBuilder.Run(context => featureFlagsUIBuilder.ApiSetPath(context, settings));
             });
 
-            app.Map(uiSettings.UiPath, x =>
+            app.Map(uiSettings.UIPath, x =>
             {
-                x.Map($"/main.js", y => y.Run(context => context.Response.WriteManifestResource(typeof(UiStartupExtensions), "application/javascript", "main.js")));
-                x.Run(context => context.Response.WriteManifestResource(typeof(UiStartupExtensions), "text/html", "index.html"));
+                x.Map($"/main.js", y => y.Run(context => context.Response.WriteManifestResource(typeof(UIStartupExtensions), "application/javascript", "main.js")));
+                x.Run(context => context.Response.WriteManifestResource(typeof(UIStartupExtensions), "text/html", "index.html"));
             });
 
             return app;
@@ -70,46 +70,46 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
         public static IEndpointConventionBuilder MapFeatureFlagsUI(
             this IEndpointRouteBuilder builder,
             FeatureFlagsSettings settings,
-            FeatureFlagUiSettings uiSettings = default(FeatureFlagUiSettings)
+            FeatureFlagUISettings uiSettings = default(FeatureFlagUISettings)
             )
         {
             if (settings is null) throw new ArgumentNullException(nameof(settings));
 
-            var featureFlagsUiBuilder = new FeatureFlagsUiBuilder();
+            var featureFlagsUIBuilder = new FeatureFlagsUIBuilder();
 
             return builder.Map(
-                uiSettings.UiPath + "/{**path}",
+                uiSettings.UIPath + "/{**path}",
                 async context =>
                 {
                     var path = context.Request.Path;
 
                     if (path == uiSettings.ApiGetPath)
                     {
-                        await featureFlagsUiBuilder.ApiGetPath(context, settings);
+                        await featureFlagsUIBuilder.ApiGetPath(context, settings);
                         return;
                     }
 
                     if (path == uiSettings.ApiGetAllPath)
                     {
-                        await featureFlagsUiBuilder.ApiGetAllPath(context, settings);
+                        await featureFlagsUIBuilder.ApiGetAllPath(context, settings);
                         return;
                     }
 
                     if (path == uiSettings.ApiSetPath)
                     {
-                        await featureFlagsUiBuilder.ApiSetPath(context, settings);
+                        await featureFlagsUIBuilder.ApiSetPath(context, settings);
                         return;
                     }
 
-                    if (path == $"{uiSettings.UiPath}/main.js")
+                    if (path == $"{uiSettings.UIPath}/main.js")
                     {
-                        await context.Response.WriteManifestResource(typeof(UiStartupExtensions), "application/javascript", "main.js");
+                        await context.Response.WriteManifestResource(typeof(UIStartupExtensions), "application/javascript", "main.js");
                         return;
                     }
 
-                    if (path == uiSettings.UiPath)
+                    if (path == uiSettings.UIPath)
                     {
-                        await context.Response.WriteManifestResource(typeof(UiStartupExtensions), "text/html", "index.html");
+                        await context.Response.WriteManifestResource(typeof(UIStartupExtensions), "text/html", "index.html");
                         return;
                     }
                 });

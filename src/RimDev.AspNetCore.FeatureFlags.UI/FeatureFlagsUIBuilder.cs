@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace RimDev.AspNetCore.FeatureFlags.UI
 {
-    internal class FeatureFlagsUiBuilder
+    internal class FeatureFlagsUIBuilder
     {
         internal async Task ApiGetPath(
             HttpContext context,
@@ -67,7 +67,7 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
 
             if (sessionManager == null)
                 throw new InvalidOperationException(
-                    $"{nameof(FeatureFlagsSessionManager)} must be registered via {nameof(UiStartupExtensions.UseRimDevFeatureFlagsUi)}()");
+                    $"{nameof(FeatureFlagsSessionManager)} must be registered via {nameof(UIStartupExtensions.UseRimDevFeatureFlagsUI)}()");
 
             var features = new List<object>();
             foreach (var featureType in settings.FeatureFlagTypes)

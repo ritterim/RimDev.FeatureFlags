@@ -29,13 +29,13 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests.Testing.ApplicationFactory
                 initializationConnectionString: featureFlagsInitializationConnectionString
             );
 
-            services.AddRimDevFeatureFlagsUi();
+            services.AddRimDevFeatureFlagsUI();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseRimDevFeatureFlags();
-            app.UseRimDevFeatureFlagsUi();
+            app.UseRimDevFeatureFlagsUI();
         }
     }
 }

@@ -11,11 +11,11 @@ using Xunit;
 namespace RimDev.AspNetCore.FeatureFlags.Tests
 {
     [Collection(nameof(TestWebApplicationCollection))]
-    public class FeatureFlagsUiBuilderTests
+    public class FeatureFlagsUIBuilderTests
     {
         private readonly TestWebApplicationFactory fixture;
 
-        public FeatureFlagsUiBuilderTests(TestWebApplicationFactory fixture)
+        public FeatureFlagsUIBuilderTests(TestWebApplicationFactory fixture)
         {
             this.fixture = fixture;
         }
@@ -24,7 +24,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
         public async Task Get_ReturnsExpectedFeature()
         {
             var client = fixture.CreateClient();
-            var uiSettings = fixture.Services.GetRequiredService<FeatureFlagUiSettings>();
+            var uiSettings = fixture.Services.GetRequiredService<FeatureFlagUISettings>();
 
             var request = new FeatureRequest
             {
@@ -66,7 +66,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
             await SetValueViaApiAsync(testFeature);
             await SetValueViaApiAsync(testFeature2);
 
-            var uiSettings = fixture.Services.GetRequiredService<FeatureFlagUiSettings>();
+            var uiSettings = fixture.Services.GetRequiredService<FeatureFlagUISettings>();
             var response = await client.GetAsync(uiSettings.ApiGetAllPath);
 
             response.EnsureSuccessStatusCode();
@@ -81,7 +81,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
         private async Task SetValueViaApiAsync(FeatureRequest featureRequest)
         {
             var client = fixture.CreateClient();
-            var uiSettings = fixture.Services.GetRequiredService<FeatureFlagUiSettings>();
+            var uiSettings = fixture.Services.GetRequiredService<FeatureFlagUISettings>();
             var response = await client.PostAsync(
                 uiSettings.ApiSetPath,
                 new StringContent(JsonConvert.SerializeObject(featureRequest))
@@ -92,7 +92,7 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
         private async Task<FeatureResponse> GetFeatureFromApiAsync(string featureName)
         {
             var client = fixture.CreateClient();
-            var uiSettings = fixture.Services.GetRequiredService<FeatureFlagUiSettings>();
+            var uiSettings = fixture.Services.GetRequiredService<FeatureFlagUISettings>();
             var httpResponse = await client.GetAsync(
                 $"{uiSettings.ApiGetPath}?feature={featureName}"
                 );
@@ -122,11 +122,11 @@ namespace RimDev.AspNetCore.FeatureFlags.Tests
         }
 
         [Fact]
-        public async Task Ui_ReturnsExpectedHtml()
+        public async Task UIPath_ReturnsExpectedHtml()
         {
             var client = fixture.CreateClient();
-            var uiSettings = fixture.Services.GetRequiredService<FeatureFlagUiSettings>();
-            var response = await client.GetAsync(uiSettings.UiPath);
+            var uiSettings = fixture.Services.GetRequiredService<FeatureFlagUISettings>();
+            var response = await client.GetAsync(uiSettings.UIPath);
 
             response.EnsureSuccessStatusCode();
 

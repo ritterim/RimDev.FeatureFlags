@@ -50,7 +50,7 @@ namespace FeatureFlags.AspNetCore
                     });
             });
 
-            services.AddRimDevFeatureFlagsUi();
+            services.AddRimDevFeatureFlagsUI();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -61,13 +61,13 @@ namespace FeatureFlags.AspNetCore
             }
 
             app.UseRimDevFeatureFlags();
-            app.UseRimDevFeatureFlagsUi();
+            app.UseRimDevFeatureFlagsUI();
 
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
-                var featureFlagUiSettings = app.ApplicationServices.GetService<FeatureFlagUiSettings>();
+                var featureFlagUISettings = app.ApplicationServices.GetService<FeatureFlagUISettings>();
 
                 endpoints.Map("/test-features", async context =>
                 {
@@ -80,7 +80,7 @@ namespace FeatureFlags.AspNetCore
                     {testFeature.GetType().Name}: {testFeature.Enabled}<br />
                     {testFeature2.GetType().Name}: {testFeature2.Enabled}<br />
                     {testFeature3.GetType().Name}: {testFeature3.Enabled}<br />
-                    <a href=""{featureFlagUiSettings.UiPath}"">View UI</a>");
+                    <a href=""{featureFlagUISettings.UIPath}"">View UI</a>");
                 });
 
                 endpoints.Map("", context =>
@@ -92,7 +92,7 @@ namespace FeatureFlags.AspNetCore
 
                 var featureFlagsSettings = app.ApplicationServices.GetRequiredService<FeatureFlagsSettings>();
                 endpoints.MapFeatureFlagsUI(
-                    uiSettings: featureFlagUiSettings,
+                    uiSettings: featureFlagUISettings,
                     settings: featureFlagsSettings
                     );
             });
