@@ -4,10 +4,10 @@ A library for strongly typed feature flags in ASP.NET Core.
 
 ![Screenshot](https://raw.githubusercontent.com/ritterim/RimDev.FeatureFlags/master/screenshot.png)
 
-| Package                                         | Version                                                                                                                                    |
-|-------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------|
-| [RimDev.AspNetCore.FeatureFlags][NuGet link]    | [![RimDev.AspNetCore.FeatureFlags NuGet Version](https://img.shields.io/nuget/v/RimDev.AspNetCore.FeatureFlags.svg)][NuGet link]           |
-| [RimDev.AspNetCore.FeatureFlags.UI][NuGet link] | [![RimDev.AspNetCore.FeatureFlags.UI NuGet Version](https://img.shields.io/nuget/v/RimDev.AspNetCore.FeatureFlags.UIs.svg)][NuGet UI link] |
+| Package                                                                                               | Version                                                                                                                  |
+|-------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| [RimDev.AspNetCore.FeatureFlags](https://www.nuget.org/packages/RimDev.AspNetCore.FeatureFlags)       | ![RimDev.AspNetCore.FeatureFlags NuGet Version](https://img.shields.io/nuget/v/RimDev.AspNetCore.FeatureFlags.svg)       |
+| [RimDev.AspNetCore.FeatureFlags.UI](https://www.nuget.org/packages/RimDev.AspNetCore.FeatureFlags.UI) | ![RimDev.AspNetCore.FeatureFlags.UI NuGet Version](https://img.shields.io/nuget/v/RimDev.AspNetCore.FeatureFlags.UI.svg) |
 
 ## Installation
 
