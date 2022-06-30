@@ -13,7 +13,7 @@ var hideMessageContainer = () => {
 
 var removeMessage = (type) => {
   message.classList.remove('message--'+type+'');
-  messageText.innerHTML = "";
+  messageText.textContent = "";
 }
 
 let clearMessage;
@@ -21,7 +21,7 @@ let clearMessage;
 var showMessage = (text, type) => {
   messageContainer.classList.add('pin-bottom');
   message.classList.add('message--'+type+'');
-  messageText.innerHTML = text;
+  messageText.textContent = text;
 }
 
 var handleMessage = (text, type) => {
@@ -33,7 +33,6 @@ var handleMessage = (text, type) => {
 }
 
 var fireMessage = (text, type) => {
-
   if(messageContainer.classList.contains('pin-bottom')) {
     hideMessageContainer();
 
