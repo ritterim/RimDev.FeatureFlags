@@ -2,6 +2,7 @@ using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace RimDev.AspNetCore.FeatureFlags.UI
 {
@@ -11,7 +12,7 @@ namespace RimDev.AspNetCore.FeatureFlags.UI
             this IServiceCollection service
             )
         {
-            service.AddSingleton<FeatureFlagUISettings>();
+            service.TryAddSingleton<FeatureFlagUISettings>();
             return service;
         }
 

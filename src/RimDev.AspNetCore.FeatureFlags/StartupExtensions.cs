@@ -6,6 +6,7 @@ using LazyCache;
 using Lussatite.FeatureManagement.SessionManagers.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.FeatureManagement;
 
 namespace RimDev.AspNetCore.FeatureFlags
@@ -65,7 +66,7 @@ namespace RimDev.AspNetCore.FeatureFlags
             string initializationConnectionString
             )
         {
-            services.AddSingleton(serviceProvider =>
+            services.TryAddSingleton(serviceProvider =>
             {
                 if (string.IsNullOrEmpty(connectionString))
                     throw new ArgumentNullException(nameof(connectionString));
@@ -117,7 +118,7 @@ namespace RimDev.AspNetCore.FeatureFlags
             this IServiceCollection services
             )
         {
-            services.AddSingleton(serviceProvider =>
+            services.TryAddSingleton(serviceProvider =>
             {
                 var featureFlagsSettings = serviceProvider.GetRequiredService<FeatureFlagsSettings>();
                 var appCache = serviceProvider.GetService<IAppCache>();
