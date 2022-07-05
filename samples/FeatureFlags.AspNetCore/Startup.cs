@@ -1,6 +1,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Lussatite.FeatureManagement;
+using Lussatite.FeatureManagement.SessionManagers;
+using Lussatite.FeatureManagement.SessionManagers.SqlClient;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -30,11 +32,17 @@ namespace FeatureFlags.AspNetCore
             var featureFlagsInitializationConnectionString
                 = configuration.GetConnectionString("featureFlagsInitialization");
 
+            var sqlSessionManagerSettings = new SQLServerSessionManagerSettings
+            {
+                FeatureSchemaName = "features",
+            };
+
             services.AddRimDevFeatureFlags(
                 configuration,
                 new[] { typeof(Startup).Assembly },
                 connectionString: featureFlagsConnectionString,
-                initializationConnectionString: featureFlagsInitializationConnectionString
+                initializationConnectionString: featureFlagsInitializationConnectionString,
+                sqlSessionManagerSettings: sqlSessionManagerSettings
                 );
 
             // IFeatureManagerSnapshot should always be scoped / per-request lifetime

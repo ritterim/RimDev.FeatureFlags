@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using LazyCache;
+using Lussatite.FeatureManagement.SessionManagers;
 using Lussatite.FeatureManagement.SessionManagers.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +24,7 @@ namespace RimDev.AspNetCore.FeatureFlags
         /// <see cref="Feature"/>.</param>
         /// <param name="connectionString">Connection string for SELECT/INSERT/DELETE operations.</param>
         /// <param name="initializationConnectionString">Connection string for the CREATE TABLE operation.</param>
+        /// <param name="sqlSessionManagerSettings">Optional <see cref="SqlSessionManagerSettings"/></param>
         /// <returns><see cref="IServiceCollection"/></returns>
         /// <exception cref="Exception">When the connection strings are missing/empty.</exception>
         public static IServiceCollection AddRimDevFeatureFlags(
@@ -30,14 +32,16 @@ namespace RimDev.AspNetCore.FeatureFlags
             IConfiguration configuration,
             ICollection<Assembly> featureFlagAssemblies,
             string connectionString,
-            string initializationConnectionString
+            string initializationConnectionString,
+            SqlSessionManagerSettings sqlSessionManagerSettings = null
             )
         {
             services.AddFeatureFlagSettings(
                 configuration,
                 featureFlagAssemblies: featureFlagAssemblies,
                 connectionString: connectionString,
-                initializationConnectionString: initializationConnectionString
+                initializationConnectionString: initializationConnectionString,
+                sqlSessionManagerSettings: sqlSessionManagerSettings
                 );
             services.AddStronglyTypedFeatureFlags(
                 featureFlagAssemblies: featureFlagAssemblies
@@ -56,6 +60,7 @@ namespace RimDev.AspNetCore.FeatureFlags
         /// <see cref="Feature"/>.</param>
         /// <param name="connectionString">Connection string for SELECT/INSERT/DELETE operations.</param>
         /// <param name="initializationConnectionString">Connection string for the CREATE TABLE operation.</param>
+        /// <param name="sqlSessionManagerSettings">Optional <see cref="SqlSessionManagerSettings"/></param>
         /// <returns><see cref="IServiceCollection"/></returns>
         /// <exception cref="Exception">When the connection strings are missing/empty.</exception>
         public static IServiceCollection AddFeatureFlagSettings(
@@ -63,7 +68,8 @@ namespace RimDev.AspNetCore.FeatureFlags
             IConfiguration configuration,
             IEnumerable<Assembly> featureFlagAssemblies,
             string connectionString,
-            string initializationConnectionString
+            string initializationConnectionString,
+            SqlSessionManagerSettings sqlSessionManagerSettings = null
             )
         {
             services.TryAddSingleton(serviceProvider =>
@@ -74,11 +80,8 @@ namespace RimDev.AspNetCore.FeatureFlags
                 if (string.IsNullOrEmpty(initializationConnectionString))
                     throw new ArgumentNullException(nameof(initializationConnectionString));
 
-                return new FeatureFlagsSettings(featureFlagAssemblies)
-                {
-                    ConnectionString = connectionString,
-                    InitializationConnectionString = initializationConnectionString,
-                    SqlSessionManagerSettings = new SQLServerSessionManagerSettings
+                sqlSessionManagerSettings = sqlSessionManagerSettings
+                    ?? new SQLServerSessionManagerSettings
                     {
                         FeatureSchemaName = "dbo",
                         FeatureTableName = "RimDevAspNetCoreFeatureFlags",
@@ -86,7 +89,15 @@ namespace RimDev.AspNetCore.FeatureFlags
                         FeatureValueColumn = "Enabled",
                         ConnectionString = connectionString,
                         EnableSetValueCommand = false,
-                    }
+                    };
+                if (string.IsNullOrEmpty(sqlSessionManagerSettings.ConnectionString))
+                    sqlSessionManagerSettings.ConnectionString = connectionString;
+
+                return new FeatureFlagsSettings(featureFlagAssemblies)
+                {
+                    ConnectionString = connectionString,
+                    InitializationConnectionString = initializationConnectionString,
+                    SqlSessionManagerSettings = sqlSessionManagerSettings,
                 };
             });
 
@@ -148,6 +159,5 @@ namespace RimDev.AspNetCore.FeatureFlags
             feature.Enabled = value;
             return feature;
         }
-
     }
 }
