@@ -24,7 +24,7 @@
     <PackageReference Include="Lussatite.FeatureManagement.SessionManagers" Version="1.6.3" />
     <PackageReference Include="Lussatite.FeatureManagement.SessionManagers.SqlClient" Version="1.6.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
     
     <!-- Package sub-dependencies which are pinned to avoid Snyk reported vulnerabilities, these can be removed later -->
     <PackageReference Include="System.Text.Encodings.Web" Version="4.5.1" />
